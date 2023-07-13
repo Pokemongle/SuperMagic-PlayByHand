@@ -2,20 +2,13 @@
 右手控制移动时 判定最灵敏的手势是 [大拇指] 被 [无名指] 和 [中指] 遮住
 """
 # (1)调用库
-import numpy as np
 import cv2
 import time
 import math
-from pynput import mouse
 from cvzone.HandTrackingModule import HandDetector  # 手部检测方法
-from cvzone import cornerRect
 import autopy
-import pyautogui
-import win32api
-import win32con
 
 # (2)函数
-
 def vertorAngle(v1,v2):
     """
         求解二维向量的角度
@@ -86,6 +79,10 @@ def main():
     AngleListL = None
     AngleListR = None
     minDetect = 1 #seconds
+    minJump = 2 #seconds
+    minAttack = 2#seconds
+    attackTime : float=0
+    jumpTime : float=0
     detectTime : float=0
     #屏幕尺寸
     wScr, hScr = autopy.screen.size()  # 返回电脑屏幕的宽和高(1920.0, 1080.0)
@@ -105,8 +102,6 @@ def main():
     #处理数据
     print('srart detection...')
     pTime = 0  # 设置第一帧开始处理的起始时间
-    presstime: float = 0
-    clicktime: float = 0
     lastfps = 0
 
     while True:
@@ -132,7 +127,19 @@ def main():
             lmListL = handL['lmList']
             # 计算五根手指的角度
             AngleListL = handAngle(lmListL)
-            print(AngleListL)
+            #print(AngleListL)
+            # 判断左手手指是否张开
+            fingersL = detector.fingersUp(handL)
+            fingersL[0] = 1 - fingersL[0]  # 拇指逻辑相反，手动矫正。
+            # 跳跃与普攻判定
+            if fingersL[0] == 0 and fingersL[1] == 0 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
+                if (time.time() - jumpTime > minJump):
+                    jumpTime = time.time()
+                    print('跳跃')
+            if fingersL[0] == 0 and fingersL[1] == 1 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
+                if (time.time() - attackTime > minAttack):
+                    attackTime = time.time()
+                    print('普攻')
         #右手
         if handR:
             lmListR = handR['lmList']
@@ -141,7 +148,7 @@ def main():
             fingersR[0] = 1 - fingersR[0]  # 拇指逻辑相反，手动矫正。
             # 计算五根手指的角度
             AngleListR = handAngle(lmListR)
-            print(AngleListR)
+            #print(AngleListR)
             # 移动判定
             # 左移
             if AngleListR[1]>120 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
@@ -157,6 +164,17 @@ def main():
                 if(time.time()-detectTime>minDetect):
                     detectTime=time.time()
                     print('手势一detected')
+            #手势2 剑树
+            if detectGes(AngleListL,[30,75],[45,75],[45,75],[90,140],[0,180]) and detectGes(AngleListR,[90,145],[90,120],[115,135],[30,55],[0,90]):
+                if(time.time() - detectTime > minDetect):
+                    detectTime = time.time()
+                    print('手势二detected')
+            #手势3 网
+            if detectGes(AngleListL,[70,100],[0,20],[0,20],[0,20],[0,20]) and detectGes(AngleListR,[70,100],[160,180],[160,180],[160,180],[160,180]):
+                if(time.time() - detectTime > minDetect):
+                    detectTime = time.time()
+                    print('手势三detected')
+
 
         #OSD information
         # FPS
