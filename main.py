@@ -2,17 +2,11 @@
 右手控制移动时 判定最灵敏的手势是 [大拇指] 被 [无名指] 和 [中指] 遮住
 """
 # (1)调用库
-import numpy as np
 import cv2
 import time
 import math
-from pynput import mouse
 from cvzone.HandTrackingModule import HandDetector  # 手部检测方法
-from cvzone import cornerRect
 import autopy
-import pyautogui
-import win32api
-import win32con
 
 # (2)函数
 
