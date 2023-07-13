@@ -15,6 +15,50 @@ import win32api
 import win32con
 
 # (2)函数
+
+def vertorAngle(v1,v2):
+    """
+        求解二维向量的角度
+        :param v1,v2:
+        :return angle:
+    """
+    v1_x = v1[0]
+    v1_y = v1[1]
+    v2_x = v2[0]
+    v2_y = v2[1]
+    try:
+        angle = math.degrees(math.acos(
+            (v1_x * v2_x + v1_y * v2_y) / (((v1_x ** 2 + v1_y ** 2) ** 0.5) * ((v2_x ** 2 + v2_y ** 2) ** 0.5))))
+    except:
+        angle = 65535.
+    if angle > 180.:
+        angle = 65535.
+    return angle
+
+def handAngle(hand):
+    """
+    获取单个手掌中五根手指的角度
+    :param hand:
+    :return AngleList:
+    """
+    AngleList = [];
+    reference=[-1,0]
+    #thumb angle
+    angle = vertorAngle(reference, (hand[3][0] - hand[4][0], hand[3][1] - hand[4][1]))
+    AngleList.append(angle)
+    #forefinger angle
+    angle = vertorAngle(reference, (hand[7][0] - hand[8][0], hand[7][1] - hand[8][1]))
+    AngleList.append(angle)
+    #middlefinger angle
+    angle = vertorAngle(reference, (hand[11][0] - hand[12][0], hand[11][1] - hand[12][1]))
+    AngleList.append(angle)
+    #ringfinger angle
+    angle = vertorAngle(reference, (hand[15][0] - hand[16][0], hand[15][1] - hand[16][1]))
+    AngleList.append(angle)
+    #pinkfinger angle
+    angle = vertorAngle(reference, (hand[19][0] - hand[20][0], hand[19][1] - hand[20][1]))
+    AngleList.append(angle)
+    return AngleList
 def main():
     print('Opening camera')
     print('Game start!')
@@ -62,11 +106,15 @@ def main():
         #左手
         if handL:
             lmListL = handL['lmList']
-            print(lmListL)
+            # 计算五根手指的角度
+            AngleListL = handAngle(lmListL)
+            #print(AngleListL)
         #右手
         if handR:
             lmListR = handR['lmList']
-            print(lmListR)
+            # 计算五根手指的角度
+            AngleListR = handAngle(lmListR)
+            print(AngleListR)
             fingersR = detector.fingersUp(handR)
             fingersR[0] = 1 - fingersR[0]  # 拇指逻辑相反，手动矫正。
         #OSD information
