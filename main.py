@@ -93,7 +93,6 @@ def main():
         img = cv2.flip(img, flipCode=1)  # 1代表水平翻转，0代表竖直翻转
         #手关键点坐标
         hands, img = detector.findHands(img, flipType=False, draw=True)  # flip hands label, draw skeleoton
-        #print(hands)  # for debug use only
         fingerTopList = range(4, 21, 4)
         # split hands data
         handL = {}
@@ -115,8 +114,13 @@ def main():
             # 计算五根手指的角度
             AngleListR = handAngle(lmListR)
             print(AngleListR)
-            fingersR = detector.fingersUp(handR)
-            fingersR[0] = 1 - fingersR[0]  # 拇指逻辑相反，手动矫正。
+            # 移动判定
+            # 左移
+            if AngleListR[1]>120:
+                print('左')
+            # 右移
+            elif AngleListR[1]<60:
+                print('右')
         #OSD information
         # FPS
         cTime = time.time()  # 处理完一帧图像的时间
