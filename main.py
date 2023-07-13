@@ -1,5 +1,5 @@
 """
-这个地方写注释
+右手控制移动时 判定最灵敏的手势是 [大拇指] 被 [无名指] 和 [中指] 遮住
 """
 # (1)调用库
 import numpy as np
@@ -59,9 +59,34 @@ def handAngle(hand):
     angle = vertorAngle(reference, (hand[19][0] - hand[20][0], hand[19][1] - hand[20][1]))
     AngleList.append(angle)
     return AngleList
+
+def detectGes(hand,v0,v1,v2,v3,v4):
+    """
+        判断五根手指的角度是否在指定范围内
+        :param hand: 包含五个手指角度的列表
+        :param v0-v4: 每个手指角度应该在的范围
+        :return: True（如果所有角度都在指定范围内）或False（如果有一个或多个角度不在指定范围内）
+    """
+    if hand[0] < v0[0] or hand[0] > v0[1]:
+        return False
+    if hand[1] < v1[0] or hand[1] > v1[1]:
+        return False
+    if hand[2] < v2[0] or hand[2] > v2[1]:
+        return False
+    if hand[3] < v3[0] or hand[3] > v3[1]:
+        return False
+    if hand[4] < v4[0] or hand[4] > v4[1]:
+        return False
+    return True
+
 def main():
     print('Opening camera')
     print('Game start!')
+    #初始化
+    AngleListL = None
+    AngleListR = None
+    minDetect = 1 #seconds
+    detectTime : float=0
     #屏幕尺寸
     wScr, hScr = autopy.screen.size()  # 返回电脑屏幕的宽和高(1920.0, 1080.0)
     #摄像头与显示尺寸
@@ -107,20 +132,32 @@ def main():
             lmListL = handL['lmList']
             # 计算五根手指的角度
             AngleListL = handAngle(lmListL)
-            #print(AngleListL)
+            print(AngleListL)
         #右手
         if handR:
             lmListR = handR['lmList']
+            # 判断右手手指是否张开
+            fingersR = detector.fingersUp(handR)
+            fingersR[0] = 1 - fingersR[0]  # 拇指逻辑相反，手动矫正。
             # 计算五根手指的角度
             AngleListR = handAngle(lmListR)
             print(AngleListR)
             # 移动判定
             # 左移
-            if AngleListR[1]>120:
+            if AngleListR[1]>120 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 print('左')
             # 右移
-            elif AngleListR[1]<60:
+            elif AngleListR[1]<60 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 print('右')
+
+        #手势判定
+        if AngleListL is not None and AngleListR is not None:
+            #手势1 三角
+            if detectGes(AngleListL,[0,25],[55,70],[45,70],[100,120],[90,120]) and detectGes(AngleListR,[145,180],[115,135],[115,135],[55,80],[55,80]):
+                if(time.time()-detectTime>minDetect):
+                    detectTime=time.time()
+                    print('手势一detected')
+
         #OSD information
         # FPS
         cTime = time.time()  # 处理完一帧图像的时间
