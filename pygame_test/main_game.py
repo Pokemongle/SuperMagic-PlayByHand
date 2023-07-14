@@ -1,12 +1,8 @@
-# main_game.py
 from source.states import main_menu, load_screen, level
 from source import tools
 import hand_detect
 import pygame
-from source import constants
 import multiprocessing
-import threading
-from multiprocessing import Manager
 from multiprocessing import Queue
 
 
