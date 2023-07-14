@@ -1,7 +1,7 @@
 import pygame
 from .. import constants
-from source.components import coin
-from source import tools, setup
+from .. components import coin
+from .. import tools, setup
 pygame.font.init()
 
 

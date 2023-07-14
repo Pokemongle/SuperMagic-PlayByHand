@@ -4,12 +4,15 @@ from .. import tools, setup
 from .. import constants
 
 class Level:
-    def __init__(self):
+    def __init__(self, msg_queue):
         self.info = info.Info('Level')
         self.setup_background()
         self.finished = False
         self.next = None
         self.setup_player()
+        self.msg_queue = msg_queue
+        self.msg = ''
+
     def setup_background(self):
         """
                 设置背景图像
@@ -38,7 +41,8 @@ class Level:
         self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 13, 16, (0, 0, 0), constants.PLAYER_MULTI)
 
     def update(self, surface, keys):
-        self.player.update(keys)
+        self.msg = self.msg_queue.get() if not self.msg_queue.empty() else ''
+        self.player.update(keys, self.msg)
         self.update_player_position()
         self.draw(surface)
 

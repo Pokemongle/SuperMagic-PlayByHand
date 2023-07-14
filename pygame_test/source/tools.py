@@ -1,8 +1,5 @@
-import random
 import pygame
-from . import setup
 import os
-
 
 class Game:
     """
@@ -17,6 +14,7 @@ class Game:
         self.screen = pygame.display.get_surface()  # 设置游戏窗口画布
         self.clock = pygame.time.Clock()  # 设置时钟
         self.keys = pygame.key.get_pressed()
+        # self.msg = '0'
         self.state_dict = state_dict
         self.state = self.state_dict[start_state]
 
@@ -34,7 +32,6 @@ class Game:
         :return:
         """
         while True:
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.display.quit()

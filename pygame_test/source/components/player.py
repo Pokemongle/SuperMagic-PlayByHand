@@ -60,7 +60,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect()
 
-    def update(self, keys):
+    def update(self, keys, msg):
         self.current_time = pygame.time.get_ticks()
         self.x_vel = 0
         self.y_vel = 0
@@ -68,10 +68,20 @@ class Player(pygame.sprite.Sprite):
             self.x_vel = 5
             self.y_vel = 0
             self.frames = self.right_frames
+        elif msg == '右':
+            self.x_vel = 10
+            self.y_vel = 0
+            self.frames = self.right_frames
+
         if keys[pygame.K_LEFT]:
             self.x_vel = -5
             self.y_vel = 0
             self.frames = self.left_frames
+        elif msg == '左':
+            self.x_vel = -10
+            self.y_vel = 0
+            self.frames = self.left_frames
+
         if keys[pygame.K_UP]:
             self.x_vel = 0
             self.y_vel = -5

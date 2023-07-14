@@ -1,7 +1,7 @@
 import pygame
-from source import setup
-from source import tools
-from source import constants
+from .. import setup
+from .. import tools
+from .. import constants
 
 
 class FlashingCoin(pygame.sprite.Sprite):
