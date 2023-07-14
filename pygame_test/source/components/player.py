@@ -69,7 +69,7 @@ class Player(pygame.sprite.Sprite):
             self.y_vel = 0
             self.frames = self.right_frames
         elif msg == '右':
-            self.x_vel = 10
+            self.x_vel = 15
             self.y_vel = 0
             self.frames = self.right_frames
 
@@ -78,7 +78,7 @@ class Player(pygame.sprite.Sprite):
             self.y_vel = 0
             self.frames = self.left_frames
         elif msg == '左':
-            self.x_vel = -10
+            self.x_vel = -15
             self.y_vel = 0
             self.frames = self.left_frames
 
