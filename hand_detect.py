@@ -8,13 +8,6 @@ import time
 import math
 from cvzone.HandTrackingModule import HandDetector  # 手部检测方法
 import autopy
-# from multiprocessing import Pipe
-# from multiprocessing import Queue
-# from multiprocessing import Manager
-
-# 创建管道
-# parent_conn, conn = Pipe()
-
 
 # (2)函数
 
@@ -149,7 +142,7 @@ def main_hand_detect(msg_queue):
             # print(AngleListR)
             # 移动判定
             # 左移
-            if AngleListR[1]>120 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
+            if AngleListR[1]>110 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 msg_queue.put('左')
                 MSG = '左'
                 print('左')
@@ -158,6 +151,8 @@ def main_hand_detect(msg_queue):
                 msg_queue.put('右')
                 MSG = '右'
                 print('右')
+            else:
+                msg_queue.put('无')
 
         #手势判定
         if AngleListL is not None and AngleListR is not None:
@@ -179,7 +174,7 @@ def main_hand_detect(msg_queue):
         # show image on screen
         cv2.imshow('image', img)
         # 每帧滞留10毫秒后消失，ESC键退出
-        if cv2.waitKey(10) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == 27:
             break
 
     # exit program
