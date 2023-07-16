@@ -67,6 +67,7 @@ class Player(pygame.sprite.Sprite):
         """
         self.walking_timer = 0
         self.translation_timer = 0
+        self.death_timers = 0
 
     def load_images(self):
         """
@@ -147,8 +148,8 @@ class Player(pygame.sprite.Sprite):
             self.jump(keys, msg)
         elif self.state == 'fall':
             self.fall(keys, msg)
-        elif self.state == 'basketball':
-            self.play_basketball(keys, msg)
+        elif self.state == 'die':
+            self.die(keys, msg)
 
         if self.face_right:
             self.image = self.right_frames[self.frame_index]
@@ -242,7 +243,7 @@ class Player(pygame.sprite.Sprite):
     def jump(self, keys, msg):
         self.frame_index = 4
         self.y_vel += self.anti_gravity
-        self.can_jump = False
+
         if self.y_vel >= 0:
             self.state = 'fall'
 
@@ -277,18 +278,17 @@ class Player(pygame.sprite.Sprite):
                 self.x_vel -= self.x_accel
                 if self.x_vel < 0:  # 速度减为0，切换状态为站立
                     self.x_vel = 0
-                    self.state = 'stand'
             else:
                 self.x_vel += self.x_accel
                 if self.x_vel > 0:
                     self.x_vel = 0
-                    self.state = 'stand'
 
         # 控制人物大小跳
         if not keys[pygame.K_SPACE]:
             self.state = 'fall'
 
     def fall(self, keys, msg):
+        self.can_jump = False
         self.y_vel = self.calc_vel(self.y_vel, self.gravity, self.max_y_vel, True)
         if keys[pygame.K_LSHIFT]:
             self.max_x_vel = self.max_run_vel
@@ -320,21 +320,26 @@ class Player(pygame.sprite.Sprite):
                 self.x_vel -= self.x_accel
                 if self.x_vel < 0:  # 速度减为0，切换状态为站立
                     self.x_vel = 0
-                    self.state = 'stand'
             else:
                 self.x_vel += self.x_accel
                 if self.x_vel > 0:
                     self.x_vel = 0
-                    self.state = 'stand'
-        # TODO workaround, will move to level.py for collision detection
-        if self.rect.bottom > constants.GROUND_HEIGHT:
-            self.rect.bottom = constants.GROUND_HEIGHT
-            self.y_vel = 0
-            self.state = 'walk'
+        # # TODO workaround, will move to level.py for collision detection
+        # if self.rect.bottom > constants.GROUND_HEIGHT:
+        #     self.rect.bottom = constants.GROUND_HEIGHT
+        #     self.y_vel = 0
+        #     self.state = 'walk'
 
+    def die(self, keys, msg):
+        self.rect.y += self.y_vel
+        self.y_vel += self.anti_gravity
 
-    def play_basketball(self, keys, msg):
-        pass
+    def go_die(self):
+        self.dead = True
+        self.y_vel = self.jump_vel
+        self.frame_index = 6
+        self.state = 'die'
+        self.death_timers = self.current_time
 
     def calc_vel(self, vel, accel, max_vel, is_positive=True):
         """

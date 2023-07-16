@@ -10,7 +10,7 @@ class Level:
     def __init__(self, msg_queue):
         self.info = info.Info('Level')
         self.finished = False
-        self.next = None
+        self.next = 'main_menu'
         self.load_map_data()
         self.setup_start_position()
         self.setup_background()
@@ -65,10 +65,18 @@ class Level:
         self.start_x, self.end_x, self.player_x, self.player_y = self.positions[0]
 
     def update(self, surface, keys):
+        self.current_time = pygame.time.get_ticks()
         self.msg = self.msg_queue.get() if not self.msg_queue.empty() else self.msg
         self.player.update(keys, self.msg)
-        self.update_player_position()
-        self.update_game_window()
+        if self.player.dead:
+            if self.current_time - self.player.death_timers > 3000:
+                self.__init__(self.msg_queue)
+                self.finished = True
+
+        else:
+            self.update_player_position()
+            self.check_if_go_die()
+            self.update_game_window()
         self.draw(surface)
 
     def update_player_position(self):
@@ -98,6 +106,10 @@ class Level:
         if ground_item:
             self.adjust_player_y(ground_item)
         self.check_will_fall(self.player)
+
+    def check_if_go_die(self):
+        if self.player.rect.y > constants.SCREEN_H:
+            self.player.go_die()
 
     def adjust_player_x(self, sprite):
         """
@@ -135,6 +147,7 @@ class Level:
         if not collided and sprite.state != 'jump':
             sprite.state = 'fall'
         sprite.rect.y -= 1
+
     def update_game_window(self):
         third = self.game_window.x + self.game_window.width / 3
         # 不可以走回头路
