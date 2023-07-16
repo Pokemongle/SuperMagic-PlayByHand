@@ -17,7 +17,7 @@ class Level:
         self.setup_player()
         self.setup_ground_items()
         self.msg_queue = msg_queue
-        self.msg = '无'
+        self.msg = ''
 
     def load_map_data(self):
         file_name = 'level_1.json'
@@ -66,6 +66,7 @@ class Level:
 
     def update(self, surface, keys):
         self.current_time = pygame.time.get_ticks()
+        # 接收手势信号
         self.msg = self.msg_queue.get() if not self.msg_queue.empty() else self.msg
         self.player.update(keys, self.msg)
         if self.player.dead:
