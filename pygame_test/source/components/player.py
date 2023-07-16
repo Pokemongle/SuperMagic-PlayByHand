@@ -1,5 +1,6 @@
 import pygame
-from .. import tools, setup
+from .. import tools
+from .. setup import GRAPHICS
 from .. import constants
 import json
 import os
@@ -15,6 +16,9 @@ class Player(pygame.sprite.Sprite):
         self.setup_velocities()  # 玩家初始速度设定
         self.setup_timers()  # 初始化动画帧计时器
         self.msg = ''  # 手势控制信号
+        self.msg_control_move = ''
+        self.msg_control_jump = ''
+        self.msg_control_special = ''
 
     def load_data(self):
         """
@@ -55,7 +59,6 @@ class Player(pygame.sprite.Sprite):
         self.turn_accel = speed['turn_accel']
         self.gravity = constants.GRAVITY
         self.anti_gravity = constants.ANTI_GRAVITY
-
         self.max_x_vel = self.max_walk_vel
         self.x_accel = self.walk_accel
 
@@ -74,7 +77,7 @@ class Player(pygame.sprite.Sprite):
         根据 name.json 文件中的数据加载动画帧
         :return: None
         """
-        sheet = setup.GRAPHICS['mario_bros']  # 取图片库中的一张图片
+        sheet = GRAPHICS['mario_bros']  # 取图片库中的一张图片
         frame_rects = self.player_data['image_frames']  # 从json文件中读取所有的帧数据, key: 动画组名, value: 帧坐标数据
         # 动画帧分组，见名知意
         self.right_small_normal_frames = []
@@ -127,66 +130,74 @@ class Player(pygame.sprite.Sprite):
         :param msg: 手势信号队列
         :return: None
         """
-        self.current_time = pygame.time.get_ticks()  # 读取当前时间
-        self.handle_states(keys, msg)
+        if msg == '左' or msg == '右' or msg == '中':
+            self.msg_control_move = msg
 
-    def handle_states(self, keys, msg):
+        if msg == '跳' or msg == '无':
+            self.msg_control_jump = msg
+            print(f"receive: {msg}")
+
+        if msg == '攻' or msg == '无':
+            self.msg_control_special = msg
+
+        self.current_time = pygame.time.get_ticks()  # 读取当前时间
+        self.handle_states(keys)
+
+    def handle_states(self, keys):
         """
         人物状态机
         :param keys: 键盘输入
-        :param msg: 手势信号
         :return:
         """
 
-        self.can_jump_or_not(keys, msg)
+        self.can_jump_or_not(keys)
 
         if self.state == 'stand':
-            self.stand(keys, msg)
+            self.stand(keys)
         elif self.state == 'walk':
-            self.walk(keys, msg)
+            self.walk(keys)
         elif self.state == 'jump':
-            self.jump(keys, msg)
+            self.jump(keys)
         elif self.state == 'fall':
-            self.fall(keys, msg)
+            self.fall(keys)
         elif self.state == 'die':
-            self.die(keys, msg)
+            self.die(keys)
 
         if self.face_right:
             self.image = self.right_frames[self.frame_index]
         else:
             self.image = self.left_frames[self.frame_index]
 
-    def can_jump_or_not(self, keys, msg):
-        if not keys[pygame.K_SPACE]:
+    def can_jump_or_not(self, keys):
+        if not ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')):
             self.can_jump = True
 
-    def stand(self, keys, msg):
+
+    def stand(self, keys):
         """
         站立状态
         :param keys:
-        :param msg:
         :return:
         """
         self.frame_index = 0  # 第0帧为站立状态
 
         # 状态切换
-        if keys[pygame.K_RIGHT] or msg == '右':
+        if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
             self.face_right = True
             self.state = 'walk'
-        elif keys[pygame.K_LEFT] or msg == '左':
+        elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
             self.state = 'walk'
-        elif keys[pygame.K_SPACE] and self.can_jump:
+        elif ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
 
 
 
-    def walk(self, keys, msg):
+    def walk(self, keys):
         """
         走路状态
         :param keys:
-        :param msg:
         :return:
         """
         # 按住左shift + 方向键可以冲刺
@@ -197,7 +208,7 @@ class Player(pygame.sprite.Sprite):
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 控制人物跳跃
-        if keys[pygame.K_SPACE] and self.can_jump:
+        if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
 
@@ -210,7 +221,7 @@ class Player(pygame.sprite.Sprite):
             self.walking_timer = self.current_time
 
         # 控制人物向右移动
-        if keys[pygame.K_RIGHT] or msg == '右':
+        if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
             self.face_right = True
             self.frames = self.right_frames
             # 加速度系统
@@ -220,7 +231,7 @@ class Player(pygame.sprite.Sprite):
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
         # 控制人物向左运动
-        elif keys[pygame.K_LEFT] or msg == '左':
+        elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
@@ -240,10 +251,10 @@ class Player(pygame.sprite.Sprite):
                     self.x_vel = 0
                     self.state = 'stand'
 
-    def jump(self, keys, msg):
+    def jump(self, keys):
         self.frame_index = 4
         self.y_vel += self.anti_gravity
-
+        # 速度为正，状态变为下落
         if self.y_vel >= 0:
             self.state = 'fall'
 
@@ -255,7 +266,7 @@ class Player(pygame.sprite.Sprite):
             self.x_accel = self.walk_accel
 
         # 控制人物向右移动
-        if keys[pygame.K_RIGHT] or msg == '右':
+        if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
             self.face_right = True
             self.frames = self.right_frames
             # 加速度系统
@@ -265,7 +276,7 @@ class Player(pygame.sprite.Sprite):
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
         # 控制人物向左运动
-        elif keys[pygame.K_LEFT] or msg == '左':
+        elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
@@ -284,10 +295,15 @@ class Player(pygame.sprite.Sprite):
                     self.x_vel = 0
 
         # 控制人物大小跳
-        if not keys[pygame.K_SPACE]:
+        # if not ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')):
+        #     self.state = 'fall'
+
+        if (keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳'):
+            pass
+        else:
             self.state = 'fall'
 
-    def fall(self, keys, msg):
+    def fall(self, keys):
         self.can_jump = False
         self.y_vel = self.calc_vel(self.y_vel, self.gravity, self.max_y_vel, True)
         if keys[pygame.K_LSHIFT]:
@@ -297,7 +313,7 @@ class Player(pygame.sprite.Sprite):
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 控制人物向右移动
-        if keys[pygame.K_RIGHT] or msg == '右':
+        if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
             self.face_right = True
             self.frames = self.right_frames
             # 加速度系统
@@ -307,7 +323,7 @@ class Player(pygame.sprite.Sprite):
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
         # 控制人物向左运动
-        elif keys[pygame.K_LEFT] or msg == '左':
+        elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
@@ -324,13 +340,8 @@ class Player(pygame.sprite.Sprite):
                 self.x_vel += self.x_accel
                 if self.x_vel > 0:
                     self.x_vel = 0
-        # # TODO workaround, will move to level.py for collision detection
-        # if self.rect.bottom > constants.GROUND_HEIGHT:
-        #     self.rect.bottom = constants.GROUND_HEIGHT
-        #     self.y_vel = 0
-        #     self.state = 'walk'
 
-    def die(self, keys, msg):
+    def die(self, keys):
         self.rect.y += self.y_vel
         self.y_vel += self.anti_gravity
 

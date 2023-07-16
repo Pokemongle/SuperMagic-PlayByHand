@@ -2,7 +2,6 @@
 右手控制移动时 判定最灵敏的手势是 [大拇指] 被 [无名指] 和 [中指] 遮住
 """
 # (1)调用库
-import numpy as np
 import cv2
 import time
 import math
@@ -10,7 +9,6 @@ from cvzone.HandTrackingModule import HandDetector  # 手部检测方法
 import autopy
 
 # (2)函数
-
 def vertorAngle(v1,v2):
     """
         求解二维向量的角度
@@ -74,19 +72,17 @@ def detectGes(hand,v0,v1,v2,v3,v4):
         return False
     return True
 
-
-def main_hand_detect(msg_queue):
+def main():
     print('Opening camera')
     print('Game start!')
-
     #初始化
     AngleListL = None
     AngleListR = None
     minDetect = 1 #seconds
-    minJump = 1  # seconds
-    minAttack = 1  # seconds
-    attackTime: float = 0
-    jumpTime: float = 0
+    minJump = 1 #seconds
+    minAttack = 1#seconds
+    attackTime : float=0
+    jumpTime : float=0
     detectTime : float=0
     #屏幕尺寸
     wScr, hScr = autopy.screen.size()  # 返回电脑屏幕的宽和高(1920.0, 1080.0)
@@ -131,24 +127,19 @@ def main_hand_detect(msg_queue):
             lmListL = handL['lmList']
             # 计算五根手指的角度
             AngleListL = handAngle(lmListL)
-            # print(AngleListL)
+            #print(AngleListL)
             # 判断左手手指是否张开
             fingersL = detector.fingersUp(handL)
             fingersL[0] = 1 - fingersL[0]  # 拇指逻辑相反，手动矫正。
             # 跳跃与普攻判定
             if fingersL[0] == 0 and fingersL[1] == 0 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
-                # if (time.time() - jumpTime > minJump):
-                #     jumpTime = time.time()
-                    msg_queue.put('跳')
-                    print('跳')
-            elif fingersL[0] == 0 and fingersL[1] == 1 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
-                # if (time.time() - attackTime > minAttack):
-                #     attackTime = time.time()
-                    msg_queue.put('攻')
-                    print('攻')
-            else:
-                msg_queue.put('无')
-
+                if (time.time() - jumpTime > minJump):
+                    jumpTime = time.time()
+                    print('跳跃')
+            if fingersL[0] == 0 and fingersL[1] == 1 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
+                if (time.time() - attackTime > minAttack):
+                    attackTime = time.time()
+                    print('普攻')
         #右手
         if handR:
             lmListR = handR['lmList']
@@ -157,18 +148,14 @@ def main_hand_detect(msg_queue):
             fingersR[0] = 1 - fingersR[0]  # 拇指逻辑相反，手动矫正。
             # 计算五根手指的角度
             AngleListR = handAngle(lmListR)
-            # print(AngleListR)
+            #print(AngleListR)
             # 移动判定
             # 左移
-            if AngleListR[1]>110 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
-                msg_queue.put('左')
+            if AngleListR[1]>120 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 print('左')
             # 右移
             elif AngleListR[1]<60 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
-                msg_queue.put('右')
                 print('右')
-            else:
-                msg_queue.put('中')
 
         #手势判定
         if AngleListL is not None and AngleListR is not None:
@@ -177,6 +164,17 @@ def main_hand_detect(msg_queue):
                 if(time.time()-detectTime>minDetect):
                     detectTime=time.time()
                     print('手势一detected')
+            #手势2 剑树
+            if detectGes(AngleListL,[30,75],[45,75],[45,75],[90,140],[0,180]) and detectGes(AngleListR,[90,145],[90,120],[115,135],[30,55],[0,90]):
+                if(time.time() - detectTime > minDetect):
+                    detectTime = time.time()
+                    print('手势二detected')
+            #手势3 网
+            if detectGes(AngleListL,[70,100],[0,20],[0,20],[0,20],[0,20]) and detectGes(AngleListR,[70,100],[160,180],[160,180],[160,180],[160,180]):
+                if(time.time() - detectTime > minDetect):
+                    detectTime = time.time()
+                    print('手势三detected')
+
 
         #OSD information
         # FPS
@@ -190,15 +188,14 @@ def main_hand_detect(msg_queue):
         # show image on screen
         cv2.imshow('image', img)
         # 每帧滞留10毫秒后消失，ESC键退出
-        if cv2.waitKey(1) & 0xFF == 27:
+        if cv2.waitKey(10) & 0xFF == 27:
             break
 
     # exit program
     cap.release()
     cv2.destroyAllWindows()
 
-
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    main_hand_detect()
+    main()
 

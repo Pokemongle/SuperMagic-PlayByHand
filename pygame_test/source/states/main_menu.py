@@ -22,6 +22,7 @@ class MainMenu:
         self.info = info.Info('main_menu')
         self.msg_queue = msg_queue
         self.msg = ''
+        self.control_msg = ''
 
     def setup_background(self):
         """
@@ -59,19 +60,13 @@ class MainMenu:
 
     def update_cursor(self, keys):
         # print(f'receive:{self.msg}')
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_UP] or self.control_msg == '左':
             self.cursor.state = '1P'
             self.cursor.rect.y = 360
-        elif keys[pygame.K_DOWN]:
+        elif keys[pygame.K_DOWN] or self.control_msg == '右':
             self.cursor.state = '2P'
             self.cursor.rect.y = 405
-        elif self.msg == '左':
-            self.cursor.state = '1P'
-            self.cursor.rect.y = 360
-        elif self.msg == '右':
-            self.cursor.state = '2P'
-            self.cursor.rect.y = 405
-        elif keys[pygame.K_RETURN]:
+        elif keys[pygame.K_RETURN] or self.control_msg == '跳':
             if self.cursor.state == '1P':
                 self.finished = True
             elif self.cursor.state == '2P':
@@ -90,39 +85,10 @@ class MainMenu:
         surface.blit(self.player_image, (110, 490))
         surface.blit(self.cursor.image, self.cursor.rect)
 
-        self.msg = self.msg_queue.get() if not self.msg_queue.empty() else ''
+        self.msg = (self.msg_queue.get()) if not self.msg_queue.empty() else self.msg
+        if self.msg == '左' or '右' or '跳跃':
+            self.control_msg = self.msg
+
         self.update_cursor(keys)
         self.info.update()
         self.info.draw(surface)
-
-    # msg test
-    # def update_cursor(self, msg):
-    #     if msg == '1':
-    #         self.cursor.state = '1P'
-    #         self.cursor.rect.y = 360
-    #     elif msg == '2':
-    #         self.cursor.state = '2P'
-    #         self.cursor.rect.y = 405
-    #     elif msg == 'OK':
-    #         if self.cursor.state == '1P':
-    #             self.finished = True
-    #         elif self.cursor.state == '2P':
-    #             self.finished = True
-    #
-    #
-
-    # def update(self, surface, msg):
-    #     """
-    #     菜单更新，原理为重新按顺序在屏幕上“画”每个组件的图像
-    #     :param surface:
-    #     :return:
-    #     """
-    #     # surface.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-    #     surface.blit(self.background, self.viewport)
-    #     surface.blit(self.caption, (170, 100))
-    #     surface.blit(self.player_image, (110, 490))
-    #     surface.blit(self.cursor.image, self.cursor.rect)
-    #
-    #     self.update_cursor(msg)
-    #     self.info.update()
-    #     self.info.draw(surface)
