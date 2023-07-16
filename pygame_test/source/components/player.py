@@ -36,6 +36,7 @@ class Player(pygame.sprite.Sprite):
         self.face_right = True
         self.dead = False
         self.big = False
+        self.can_jump = True
 
     def setup_velocities(self):
         """
@@ -53,6 +54,7 @@ class Player(pygame.sprite.Sprite):
         self.run_accel = speed['run_accel']
         self.turn_accel = speed['turn_accel']
         self.gravity = constants.GRAVITY
+        self.anti_gravity = constants.ANTI_GRAVITY
 
         self.max_x_vel = self.max_walk_vel
         self.x_accel = self.walk_accel
@@ -134,12 +136,17 @@ class Player(pygame.sprite.Sprite):
         :param msg: 手势信号
         :return:
         """
+
+        self.can_jump_or_not(keys, msg)
+
         if self.state == 'stand':
             self.stand(keys, msg)
         elif self.state == 'walk':
             self.walk(keys, msg)
         elif self.state == 'jump':
             self.jump(keys, msg)
+        elif self.state == 'fall':
+            self.fall(keys, msg)
         elif self.state == 'basketball':
             self.play_basketball(keys, msg)
 
@@ -147,6 +154,10 @@ class Player(pygame.sprite.Sprite):
             self.image = self.right_frames[self.frame_index]
         else:
             self.image = self.left_frames[self.frame_index]
+
+    def can_jump_or_not(self, keys, msg):
+        if not keys[pygame.K_SPACE]:
+            self.can_jump = True
 
     def stand(self, keys, msg):
         """
@@ -156,8 +167,7 @@ class Player(pygame.sprite.Sprite):
         :return:
         """
         self.frame_index = 0  # 第0帧为站立状态
-        self.x_vel = 0  # 速度为0
-        self.y_vel = 0
+
         # 状态切换
         if keys[pygame.K_RIGHT] or msg == '右':
             self.face_right = True
@@ -165,6 +175,11 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_LEFT] or msg == '左':
             self.face_right = False
             self.state = 'walk'
+        elif keys[pygame.K_SPACE] and self.can_jump:
+            self.state = 'jump'
+            self.y_vel = self.jump_vel
+
+
 
     def walk(self, keys, msg):
         """
@@ -180,6 +195,10 @@ class Player(pygame.sprite.Sprite):
         else:
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
+        # 控制人物跳跃
+        if keys[pygame.K_SPACE] and self.can_jump:
+            self.state = 'jump'
+            self.y_vel = self.jump_vel
 
         # 动画帧更新
         if self.current_time - self.walking_timer > self.calc_frame_duration():
@@ -199,6 +218,7 @@ class Player(pygame.sprite.Sprite):
                 self.x_accel = self.turn_accel
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
+        # 控制人物向左运动
         elif keys[pygame.K_LEFT] or msg == '左':
             self.face_right = False
             self.frames = self.left_frames
@@ -206,7 +226,8 @@ class Player(pygame.sprite.Sprite):
                 self.frame_index = 5
                 self.x_accel = self.turn_accel
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
-        else:  # 无按键控制或手势响应，人物逐渐停止
+        # 无按键控制或手势响应，人物逐渐停止
+        else:
             if self.face_right:  # 人物姿势是否朝右
                 self.x_vel -= self.x_accel
                 if self.x_vel < 0:  # 速度减为0，切换状态为站立
@@ -219,7 +240,98 @@ class Player(pygame.sprite.Sprite):
                     self.state = 'stand'
 
     def jump(self, keys, msg):
-        pass
+        self.frame_index = 4
+        self.y_vel += self.anti_gravity
+        self.can_jump = False
+        if self.y_vel >= 0:
+            self.state = 'fall'
+
+        if keys[pygame.K_LSHIFT]:
+            self.max_x_vel = self.max_run_vel
+            self.x_accel = self.run_accel
+        else:
+            self.max_x_vel = self.max_walk_vel
+            self.x_accel = self.walk_accel
+
+        # 控制人物向右移动
+        if keys[pygame.K_RIGHT] or msg == '右':
+            self.face_right = True
+            self.frames = self.right_frames
+            # 加速度系统
+            if self.x_vel < 0:  # 按右键时人物在向左运动，则减速
+                self.frame_index = 5  # 急停刹车为第5帧
+                self.x_accel = self.turn_accel
+            # 根据当前速度，加速度，最大速度计算下一步的速度
+            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
+        # 控制人物向左运动
+        elif keys[pygame.K_LEFT] or msg == '左':
+            self.face_right = False
+            self.frames = self.left_frames
+            if self.x_vel > 0:
+                self.frame_index = 5
+                self.x_accel = self.turn_accel
+            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
+        # 无按键控制或手势响应，人物逐渐停止
+        else:
+            if self.face_right:  # 人物姿势是否朝右
+                self.x_vel -= self.x_accel
+                if self.x_vel < 0:  # 速度减为0，切换状态为站立
+                    self.x_vel = 0
+                    self.state = 'stand'
+            else:
+                self.x_vel += self.x_accel
+                if self.x_vel > 0:
+                    self.x_vel = 0
+                    self.state = 'stand'
+
+        # 控制人物大小跳
+        if not keys[pygame.K_SPACE]:
+            self.state = 'fall'
+
+    def fall(self, keys, msg):
+        self.y_vel = self.calc_vel(self.y_vel, self.gravity, self.max_y_vel, True)
+        if keys[pygame.K_LSHIFT]:
+            self.max_x_vel = self.max_run_vel
+            self.x_accel = self.run_accel
+        else:
+            self.max_x_vel = self.max_walk_vel
+            self.x_accel = self.walk_accel
+        # 控制人物向右移动
+        if keys[pygame.K_RIGHT] or msg == '右':
+            self.face_right = True
+            self.frames = self.right_frames
+            # 加速度系统
+            if self.x_vel < 0:  # 按右键时人物在向左运动，则减速
+                self.frame_index = 5  # 急停刹车为第5帧
+                self.x_accel = self.turn_accel
+            # 根据当前速度，加速度，最大速度计算下一步的速度
+            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
+        # 控制人物向左运动
+        elif keys[pygame.K_LEFT] or msg == '左':
+            self.face_right = False
+            self.frames = self.left_frames
+            if self.x_vel > 0:
+                self.frame_index = 5
+                self.x_accel = self.turn_accel
+            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
+        # 无按键控制或手势响应，人物逐渐停止
+        else:
+            if self.face_right:  # 人物姿势是否朝右
+                self.x_vel -= self.x_accel
+                if self.x_vel < 0:  # 速度减为0，切换状态为站立
+                    self.x_vel = 0
+                    self.state = 'stand'
+            else:
+                self.x_vel += self.x_accel
+                if self.x_vel > 0:
+                    self.x_vel = 0
+                    self.state = 'stand'
+        # TODO workaround, will move to level.py for collision detection
+        if self.rect.bottom > constants.GROUND_HEIGHT:
+            self.rect.bottom = constants.GROUND_HEIGHT
+            self.y_vel = 0
+            self.state = 'walk'
+
 
     def play_basketball(self, keys, msg):
         pass
