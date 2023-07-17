@@ -1,8 +1,15 @@
 # 游戏主要入口
+<<<<<<< HEAD
 from source import setup
 from source.states import main_menu, load_screen, level
 
 from source import tools
+=======
+from . source import setup
+from . source.states import main_menu, load_screen, level
+
+from . source import tools
+>>>>>>> feature01_handmove
 
 
 def main():
