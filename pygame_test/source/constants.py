@@ -12,4 +12,4 @@ FONT = 'Ark Pixel.ttf'
 
 GRAVITY = 1.0
 ANTI_GRAVITY = 0.3
->>>>>>> feature01_handmove
+

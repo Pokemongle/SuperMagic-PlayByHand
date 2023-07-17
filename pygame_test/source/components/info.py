@@ -6,30 +6,19 @@ pygame.font.init()
 
 
 class Info:
-<<<<<<< HEAD
-    def __init__(self, state):
-=======
     def __init__(self, state, game_info):
         self.game_info = game_info
->>>>>>> feature01_handmove
         self.state = state
         self.create_state_labels()
         self.create_info_labels()
         self.flash_coin = coin.FlashingCoin()
-<<<<<<< HEAD
-=======
 
->>>>>>> feature01_handmove
     def create_state_labels(self):
         """
         方法1：字体->文字->图片
         创建主界面文字信息图片
         :return: None
         """
-<<<<<<< HEAD
-=======
-
->>>>>>> feature01_handmove
         self.state_labels = []  # (图片对象，放置位置)
         if self.state == 'main_menu':
             self.state_labels.append((self.create_label('1 PLAYER GAME'), (272, 360)))
@@ -39,16 +28,12 @@ class Info:
         elif self.state == 'load_screen':
             self.state_labels.append((self.create_label('WORLD'), (280, 200)))
             self.state_labels.append((self.create_label('1 - 1'), (430, 200)))
-<<<<<<< HEAD
-            self.state_labels.append((self.create_label('X    3'), (380, 280)))
-            self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 12, 16, (0, 0, 0), constants.BG_MULTI)
 
-=======
             self.state_labels.append((self.create_label('X    {}'.format(self.game_info['lives'])), (380, 280)))
             self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 12, 16, (0, 0, 0), constants.BG_MULTI)
         elif self.state == 'game_over':
             self.state_labels.append((self.create_label('GAME OVER'), (280, 300)))
->>>>>>> feature01_handmove
+
 
 
     def create_info_labels(self):
@@ -93,8 +78,4 @@ class Info:
         surface.blit(self.flash_coin.image, self.flash_coin.rect)
 
         if self.state == 'load_screen':
-<<<<<<< HEAD
             surface.blit(self.player_image, (300, 270))
-=======
-            surface.blit(self.player_image, (300, 270))
->>>>>>> feature01_handmove
