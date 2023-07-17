@@ -11,10 +11,11 @@ def main_game(msg_queue):
 
     state_dict = {
         'main_menu': main_menu.MainMenu(msg_queue),
-        'load_screen': load_screen.LoadScreen(),
-        'level': level.Level(msg_queue)
+        'load_screen': load_screen.LoadScreen(msg_queue),
+        'level': level.Level(msg_queue),
+        'game_over': load_screen.GameOver([], msg_queue)
     }
-    game = tools.Game(state_dict, 'main_menu')
+    game = tools.Game(state_dict, 'main_menu', msg_queue)
     game.run()
 
 

@@ -1,7 +1,8 @@
 import pygame
 from .. import tools
-from .. setup import GRAPHICS
+from ..setup import GRAPHICS
 from .. import constants
+from ..components import powerup
 import json
 import os
 
@@ -40,7 +41,10 @@ class Player(pygame.sprite.Sprite):
         self.face_right = True
         self.dead = False
         self.big = False
+        self.fire = False
         self.can_jump = True
+        self.can_shoot = True
+        self.hurt_immune = False
 
     def setup_velocities(self):
         """
@@ -62,7 +66,6 @@ class Player(pygame.sprite.Sprite):
         self.max_x_vel = self.max_walk_vel
         self.x_accel = self.walk_accel
 
-
     def setup_timers(self):
         """
         初始化动画计时器
@@ -70,7 +73,9 @@ class Player(pygame.sprite.Sprite):
         """
         self.walking_timer = 0
         self.translation_timer = 0
-        self.death_timers = 0
+        self.death_timer = 0
+        self.hurt_immune_timer = 0
+        self.last_fireball_timer = 0
 
     def load_images(self):
         """
@@ -123,7 +128,7 @@ class Player(pygame.sprite.Sprite):
         self.image = self.frames[self.frame_index]  # 截取初始动画帧图像
         self.rect = self.image.get_rect()  # 获取图像大小
 
-    def update(self, keys, msg):
+    def update(self, keys, msg, level):
         """
         更新人物位置和状态
         :param keys: 获取的系统键盘按键列表
@@ -135,33 +140,42 @@ class Player(pygame.sprite.Sprite):
 
         if msg == '跳' or msg == '无':
             self.msg_control_jump = msg
-            print(f"receive: {msg}")
 
         if msg == '攻' or msg == '无':
             self.msg_control_special = msg
 
         self.current_time = pygame.time.get_ticks()  # 读取当前时间
-        self.handle_states(keys)
+        self.handle_states(keys, level)
+        self.is_hurt_immune()
 
-    def handle_states(self, keys):
+    def handle_states(self, keys, level):
         """
         人物状态机
         :param keys: 键盘输入
         :return:
         """
-
+        # 传送点
         self.can_jump_or_not(keys)
+        self.can_shoot_or_not(keys)
 
         if self.state == 'stand':
-            self.stand(keys)
+            self.stand(keys, level)
         elif self.state == 'walk':
-            self.walk(keys)
+            self.walk(keys, level)
         elif self.state == 'jump':
-            self.jump(keys)
+            self.jump(keys, level)
         elif self.state == 'fall':
-            self.fall(keys)
+            self.fall(keys, level)
         elif self.state == 'die':
-            self.die(keys)
+            self.die(keys, level)
+        elif self.state == 'small2big':
+            self.small2big(keys, level)
+        elif self.state == 'big2small':
+            self.big2small(keys, level)
+        elif self.state == 'big2fire':
+            self.big2fire(keys, level)
+        elif self.state == 'fire2big':
+            self.fire2big(keys, level)
 
         if self.face_right:
             self.image = self.right_frames[self.frame_index]
@@ -172,8 +186,11 @@ class Player(pygame.sprite.Sprite):
         if not ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')):
             self.can_jump = True
 
+    def can_shoot_or_not(self, keys):
+        if not ((keys[pygame.K_RSHIFT]) or (self.msg_control_jump == '攻')):
+            self.can_shoot = True
 
-    def stand(self, keys):
+    def stand(self, keys, level):
         """
         站立状态
         :param keys:
@@ -188,13 +205,14 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
             self.state = 'walk'
-        elif ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
+        if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
+        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+            if self.fire and self.can_shoot:
+                self.shoot_fireball(level)
 
-
-
-    def walk(self, keys):
+    def walk(self, keys, level):
         """
         走路状态
         :param keys:
@@ -211,6 +229,10 @@ class Player(pygame.sprite.Sprite):
         if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
+
+        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+            if self.fire and self.can_shoot:
+                self.shoot_fireball(level)
 
         # 动画帧更新
         if self.current_time - self.walking_timer > self.calc_frame_duration():
@@ -251,7 +273,7 @@ class Player(pygame.sprite.Sprite):
                     self.x_vel = 0
                     self.state = 'stand'
 
-    def jump(self, keys):
+    def jump(self, keys, level):
         self.frame_index = 4
         self.y_vel += self.anti_gravity
         # 速度为正，状态变为下落
@@ -303,7 +325,11 @@ class Player(pygame.sprite.Sprite):
         else:
             self.state = 'fall'
 
-    def fall(self, keys):
+        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+            if self.fire and self.can_shoot:
+                self.shoot_fireball(level)
+
+    def fall(self, keys, level):
         self.can_jump = False
         self.y_vel = self.calc_vel(self.y_vel, self.gravity, self.max_y_vel, True)
         if keys[pygame.K_LSHIFT]:
@@ -312,6 +338,10 @@ class Player(pygame.sprite.Sprite):
         else:
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
+        # 发射火球
+        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+            if self.fire and self.can_shoot:
+                self.shoot_fireball(level)
         # 控制人物向右移动
         if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
             self.face_right = True
@@ -341,16 +371,120 @@ class Player(pygame.sprite.Sprite):
                 if self.x_vel > 0:
                     self.x_vel = 0
 
-    def die(self, keys):
+    def die(self, keys, level):
         self.rect.y += self.y_vel
         self.y_vel += self.anti_gravity
+
+    def small2big(self, keys, level):
+        frame_dur = 35
+        sizes = [1, 0, 1, 0, 1, 2, 0, 1, 2, 0, 2]  # 0-small, 1-medium, 2-big
+        frames_and_idx = [(self.small_normal_frames, 0), (self.small_normal_frames, 7), (self.big_normal_frames, 0)]
+        if self.translation_timer == 0:
+            self.big = True
+            self.translation_timer = self.current_time
+            self.changing_idx = 0
+        elif self.current_time - self.translation_timer > frame_dur:
+            self.translation_timer = self.current_time
+            frames, idx = frames_and_idx[sizes[self.changing_idx]]
+            self.change_player_image(frames, idx)
+            self.changing_idx += 1
+            if self.changing_idx == len(sizes):  # 变身的最后一帧
+                self.translation_timer = 0
+                self.state = 'walk'
+                self.right_frames = self.right_big_normal_frames
+                self.left_frames = self.left_big_normal_frames
+
+    def big2small(self, keys, level):
+        frame_dur = 35
+        sizes = [2, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]  # 0-small, 1-medium, 2-big
+        frames_and_idx = [(self.small_normal_frames, 8), (self.big_normal_frames, 8), (self.big_normal_frames, 4)]
+        if self.translation_timer == 0:
+            self.translation_timer = self.current_time
+            self.changing_idx = 0
+        elif self.current_time - self.translation_timer > frame_dur:
+            self.translation_timer = self.current_time
+            frames, idx = frames_and_idx[sizes[self.changing_idx]]
+            self.change_player_image(frames, idx)
+            self.changing_idx += 1
+            if self.changing_idx == len(sizes):  # 变身的最后一帧
+                self.translation_timer = 0
+                self.state = 'walk'
+                self.big = False
+                self.right_frames = self.right_small_normal_frames
+                self.left_frames = self.left_small_normal_frames
+
+    def big2fire(self, keys, level):
+        frame_dur = 35
+        sizes = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]  # 0-small, 1-medium, 2-big
+        frames_and_idx = [(self.big_fire_frames, 3), (self.big_normal_frames, 3)]
+        if self.translation_timer == 0:
+            self.big = True
+            self.fire = True
+            self.translation_timer = self.current_time
+            self.changing_idx = 0
+        elif self.current_time - self.translation_timer > frame_dur:
+            self.translation_timer = self.current_time
+            frames, idx = frames_and_idx[sizes[self.changing_idx]]
+            self.change_player_image(frames, idx)
+            self.changing_idx += 1
+            if self.changing_idx == len(sizes):  # 变身的最后一帧
+                self.translation_timer = 0
+                self.state = 'walk'
+                self.right_frames = self.right_big_fire_frames
+                self.left_frames = self.left_big_fire_frames
+
+    def fire2big(self, keys, level):
+        frame_dur = 35
+        sizes = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]  # 0-small, 1-medium, 2-big
+        frames_and_idx = [(self.big_normal_frames, 3), (self.big_fire_frames, 3)]
+        if self.translation_timer == 0:
+            self.big = True
+            self.translation_timer = self.current_time
+            self.changing_idx = 0
+        elif self.current_time - self.translation_timer > frame_dur:
+            self.translation_timer = self.current_time
+            frames, idx = frames_and_idx[sizes[self.changing_idx]]
+            self.change_player_image(frames, idx)
+            self.changing_idx += 1
+            if self.changing_idx == len(sizes):  # 变身的最后一帧
+                self.translation_timer = 0
+                self.state = 'walk'
+                self.fire = False
+                self.right_frames = self.right_big_normal_frames
+                self.left_frames = self.left_big_normal_frames
+
+    def change_player_image(self, frames, idx):
+        self.frame_index = idx
+        if self.face_right:
+            self.right_frames = frames[0]
+            self.image = self.right_frames[self.frame_index]
+        else:
+            self.left_frames = frames[1]
+            self.image = self.left_frames[self.frame_index]
+        last_frame_bottom = self.rect.bottom
+        last_frame_centerx = self.rect.centerx
+        self.rect = self.image.get_rect()
+        self.rect.bottom = last_frame_bottom
+        self.rect.centerx = last_frame_centerx
 
     def go_die(self):
         self.dead = True
         self.y_vel = self.jump_vel
         self.frame_index = 6
         self.state = 'die'
-        self.death_timers = self.current_time
+        self.death_timer = self.current_time
+
+    def is_hurt_immune(self):
+        if self.hurt_immune:
+            if self.hurt_immune_timer == 0:
+                self.hurt_immune_timer = self.current_time
+                self.blank_image = pygame.Surface((1, 1))
+            elif self.current_time - self.hurt_immune_timer < 2000:
+                if (self.current_time - self.hurt_immune_timer) % 100 < 50:  # 前50ms
+                    self.image = self.blank_image
+            else:
+                self.hurt_immune = False
+                self.hurt_immune_timer = 0
 
     def calc_vel(self, vel, accel, max_vel, is_positive=True):
         """
@@ -362,9 +496,9 @@ class Player(pygame.sprite.Sprite):
         :return: None
         """
         if is_positive:
-            return min(vel+accel, max_vel)
+            return min(vel + accel, max_vel)
         else:
-            return max(vel-accel, -max_vel)
+            return max(vel - accel, -max_vel)
 
     def calc_frame_duration(self):
         """
@@ -374,3 +508,11 @@ class Player(pygame.sprite.Sprite):
         # 帧持续时间根据人物速度改变，最大速度时为20ms，最小速度为80ms，线性变换，求出duration和x_vel的关系式
         duration = -60 / self.max_run_vel + abs(self.x_vel) + 80
         return duration
+
+    def shoot_fireball(self, level):
+        if self.current_time - self.last_fireball_timer > 300:
+            self.frame_index = 6
+            fireball = powerup.Fireball(self.rect.centerx, self.rect.centery, self.face_right)
+            level.powerup_group.add(fireball)
+            self.can_shoot = False
+            self.last_fireball_timer = self.current_time

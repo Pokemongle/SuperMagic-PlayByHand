@@ -7,23 +7,33 @@ class Game:
     初始化游戏窗口、帧率、启动游戏
     """
 
-    def __init__(self, state_dict, start_state):
+    def __init__(self, state_dict, start_state, msg_queue):
         """
-        初始化游戏
+        游戏初始化
+        :param state_dict: 保存状态命名的字典
+        :param start_state: 游戏初始的状态，设置为主菜单main_menu
+        :param msg_queue: 与手势识别共享的消息队列
         """
         self.screen = pygame.display.get_surface()  # 设置游戏窗口画布
         self.clock = pygame.time.Clock()  # 设置时钟
-        self.keys = pygame.key.get_pressed()
-        # self.msg = '0'
-        self.state_dict = state_dict
-        self.state = self.state_dict[start_state]
+        self.keys = pygame.key.get_pressed()  # 检测被按下的按键
+        self.state_dict = state_dict  # 保存状态名: 状态实例的字典
+        self.state = self.state_dict[start_state]   # 当前状态，开始设置为主菜单
+        self.msg_queue = msg_queue  # 消息队列
 
     def update(self):
-        if self.state.finished:
-            next_state = self.state.next
-            self.state.finished = False
-            self.state = self.state_dict[next_state]
-        self.state.update(self.screen, self.keys)
+        """
+        检测状态是否切换
+        :return: None
+        """
+        if self.state.finished:  # 当前状态是否结束
+            game_info = self.state.game_info    # 读取当前状态的游戏信息
+            msg_queue = self.state.msg_queue  # 读取当前状态的消息队列
+            next_state = self.state.next    # 读取当前状态的下一个状态
+            self.state.finished = False     # 将当前状态的结束重新设置为否，方便再次调用
+            self.state = self.state_dict[next_state]    # 根据读取的下一个状态切换当前状态
+            self.state.start(game_info, msg_queue)  # 当前状态初始化
+        self.state.update(self.screen, self.keys)   # 当前状态更新
 
     def run(self):
         """
