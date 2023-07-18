@@ -75,7 +75,10 @@ class MainMenu:
         设置人物图像
         :return:
         """
-        self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 13, 16, (0, 0, 0), constants.PLAYER_MULTI)
+        self.player_image = tools.get_image(setup.GRAPHICS['harry'], 443, 63, 17, 43, (103, 167, 141), 2.69)
+        # self.test1 = tools.get_image(setup.GRAPHICS['harry'], 464, 63, 17, 43, (103, 167, 141), 2.69)
+        # self.test2 = tools.get_image(setup.GRAPHICS['harry'], 1204, 63, 19, 43, (103, 167, 141), 2.69)
+
 
 
     def setup_cursor(self):
@@ -84,7 +87,7 @@ class MainMenu:
         :return:
         """
         self.cursor = pygame.sprite.Sprite()
-        self.cursor.image = tools.get_image(setup.GRAPHICS['item_objects'], 24, 160, 8, 8, (0, 0, 0), constants.PLAYER_MULTI)
+        self.cursor.image = tools.get_image(setup.GRAPHICS['item_objects'], 24, 160, 8, 8, (0, 0, 0), 2.69)
         rect = self.cursor.image.get_rect()
         rect.x, rect.y = (220, 360)
         self.cursor.rect = rect
@@ -112,11 +115,13 @@ class MainMenu:
         # surface.fill((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
         surface.blit(self.background, self.viewport)
         surface.blit(self.caption, (170, 100))
-        surface.blit(self.player_image, (110, 490))
+        surface.blit(self.player_image, (110, 420))
+        # surface.blit(self.test1, (150, 420))
+        # surface.blit(self.test2, (190, 420))
         surface.blit(self.cursor.image, self.cursor.rect)
         # 读取消息队列最新的消息
         self.msg = (self.msg_queue.get()) if not self.msg_queue.empty() else self.msg
-        if self.msg == '左' or self.msg == '右' or self.msg == '跳跃':
+        if self.msg == '左' or self.msg == '右' or self.msg == '跳':
             self.control_msg = self.msg
         else:
             pass

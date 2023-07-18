@@ -13,7 +13,7 @@ class Player(pygame.sprite.Sprite):
         self.name = name  # 玩家名字
         self.load_data()  # 载入玩家json文件
         self.load_images()  # 载入动画帧图像
-        self.setup_states()  #
+        self.setup_states()  # 初始化玩家状态
         self.setup_velocities()  # 玩家初始速度设定
         self.setup_timers()  # 初始化动画帧计时器
         self.msg = ''  # 手势控制信号
@@ -83,7 +83,7 @@ class Player(pygame.sprite.Sprite):
         根据 name.json 文件中的数据加载动画帧
         :return: None
         """
-        sheet = GRAPHICS['mario_bros']  # 取图片库中的一张图片
+        sheet = GRAPHICS['harry']  # 取图片库中的一张图片
         frame_rects = self.player_data['image_frames']  # 从json文件中读取所有的帧数据, key: 动画组名, value: 帧坐标数据
         # 动画帧分组，见名知意
         self.right_small_normal_frames = []
@@ -97,7 +97,7 @@ class Player(pygame.sprite.Sprite):
             for frame_rect in group_frame_rects:
                 right_image = tools.get_image(sheet, frame_rect['x'], frame_rect['y'],
                                               frame_rect['width'], frame_rect['height'],
-                                              (0, 0, 0), constants.PLAYER_MULTI)
+                                              (103, 167, 141), constants.PLAYER_MULTI)
                 left_image = pygame.transform.flip(right_image, True, False)
                 if group == 'right_small_normal':
                     self.right_small_normal_frames.append(right_image)
@@ -240,10 +240,10 @@ class Player(pygame.sprite.Sprite):
 
         # 动画帧更新
         if self.current_time - self.walking_timer > self.calc_frame_duration():
-            if self.frame_index < 3:
+            if self.frame_index < 9:
                 self.frame_index += 1
             else:
-                self.frame_index = 1
+                self.frame_index = 0
             self.walking_timer = self.current_time
 
         # 控制人物向右移动
@@ -252,7 +252,7 @@ class Player(pygame.sprite.Sprite):
             self.frames = self.right_frames
             # 加速度系统
             if self.x_vel < 0:  # 按右键时人物在向左运动，则减速
-                self.frame_index = 5  # 急停刹车为第5帧
+                self.frame_index = 3  # 急停刹车为第3帧
                 self.x_accel = self.turn_accel
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
@@ -261,7 +261,7 @@ class Player(pygame.sprite.Sprite):
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
-                self.frame_index = 5
+                self.frame_index = 3
                 self.x_accel = self.turn_accel
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
         # 无按键控制或手势响应，人物逐渐停止
@@ -278,7 +278,7 @@ class Player(pygame.sprite.Sprite):
                     self.state = 'stand'
 
     def jump(self, keys, level):
-        self.frame_index = 4
+        self.frame_index = 9
         self.y_vel += self.anti_gravity
         # 速度为正，状态变为下落
         if self.y_vel >= 0:
@@ -297,7 +297,7 @@ class Player(pygame.sprite.Sprite):
             self.frames = self.right_frames
             # 加速度系统
             if self.x_vel < 0:  # 按右键时人物在向左运动，则减速
-                self.frame_index = 5  # 急停刹车为第5帧
+                self.frame_index = 3  # 急停刹车为第5帧
                 self.x_accel = self.turn_accel
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
@@ -306,7 +306,7 @@ class Player(pygame.sprite.Sprite):
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
-                self.frame_index = 5
+                self.frame_index = 3
                 self.x_accel = self.turn_accel
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
         # 无按键控制或手势响应，人物逐渐停止
@@ -352,7 +352,7 @@ class Player(pygame.sprite.Sprite):
             self.frames = self.right_frames
             # 加速度系统
             if self.x_vel < 0:  # 按右键时人物在向左运动，则减速
-                self.frame_index = 5  # 急停刹车为第5帧
+                self.frame_index = 3  # 急停刹车为第5帧
                 self.x_accel = self.turn_accel
             # 根据当前速度，加速度，最大速度计算下一步的速度
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
@@ -361,7 +361,7 @@ class Player(pygame.sprite.Sprite):
             self.face_right = False
             self.frames = self.left_frames
             if self.x_vel > 0:
-                self.frame_index = 5
+                self.frame_index = 3
                 self.x_accel = self.turn_accel
             self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
         # 无按键控制或手势响应，人物逐渐停止
@@ -474,7 +474,7 @@ class Player(pygame.sprite.Sprite):
     def go_die(self):
         self.dead = True
         self.y_vel = self.jump_vel
-        self.frame_index = 6
+        self.frame_index = 9
         self.state = 'die'
         self.death_timer = self.current_time
 

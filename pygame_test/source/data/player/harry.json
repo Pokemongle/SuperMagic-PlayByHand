@@ -1,0 +1,51 @@
+{
+    "image_name":"harry",
+    "image_frames":{
+        "right_small_normal":[
+            {"x":321, "y": 63, "width":17, "height":43},
+            {"x":339, "y": 63, "width":17, "height":43},
+            {"x":358, "y": 63, "width":19, "height":43},
+            {"x":380, "y": 63, "width":19, "height":43},
+            {"x":403, "y": 63, "width":18, "height":43},
+            {"x":424, "y": 63, "width":17, "height":43},
+            {"x":443, "y": 63, "width":18, "height":43},
+            {"x":464, "y": 63, "width":19, "height":43},
+            {"x":486, "y": 63, "width":20, "height":43},
+            {"x":1204,"y": 68, "width":23, "height":42}
+        ],
+        "right_big_normal":[
+            {"x":321, "y": 63, "width":17, "height":43},
+            {"x":339, "y": 63, "width":17, "height":43},
+            {"x":358, "y": 63, "width":19, "height":43},
+            {"x":380, "y": 63, "width":19, "height":43},
+            {"x":403, "y": 63, "width":18, "height":43},
+            {"x":424, "y": 63, "width":17, "height":43},
+            {"x":443, "y": 63, "width":18, "height":43},
+            {"x":464, "y": 63, "width":19, "height":43},
+            {"x":486, "y": 63, "width":20, "height":43},
+            {"x":1204,"y": 68, "width":23, "height":42}
+        ],
+        "right_big_fire":[
+            {"x":831, "y": 67, "width":18, "height":44},
+            {"x":852, "y": 67, "width":18, "height":44},
+            {"x":872, "y": 67, "width":19, "height":46},
+            {"x":894, "y": 67, "width":19, "height":46},
+            {"x":917, "y": 67, "width":18, "height":44},
+            {"x":937, "y": 67, "width":18, "height":44},
+            {"x":957, "y": 67, "width":18, "height":45},
+            {"x":978, "y": 67, "width":18, "height":44},
+            {"x":1000,"y": 67, "width":20, "height":43},
+            {"x":1204,"y": 68, "width":23, "height":42}
+        ]
+    },
+    "speed":{
+        "max_walk_speed":6,
+        "max_run_speed":12,
+        "max_y_velocity":11,
+        "walk_accel":0.15,
+        "run_accel":0.3,
+        "turn_accel": 0.35,
+        "jump_velocity":-10.5
+    }
+    
+}

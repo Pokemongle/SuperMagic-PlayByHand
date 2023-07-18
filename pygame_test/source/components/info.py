@@ -12,7 +12,7 @@ class Info:
         self.create_state_labels()
         self.create_info_labels(0.0)
         self.flash_coin = coin.FlashingCoin()
-        self.msg = '0.0'
+        self.msg = 0.0
 
     def create_state_labels(self):
         """
@@ -31,7 +31,7 @@ class Info:
             self.state_labels.append((self.create_label('1 - 1'), (430, 200)))
 
             self.state_labels.append((self.create_label('X    {}'.format(self.game_info['lives'])), (380, 280)))
-            self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 12, 16, (0, 0, 0), constants.BG_MULTI)
+            self.player_image = tools.get_image(setup.GRAPHICS['harry'], 63, 1343, 22, 25, (103, 167, 141), 2.69)
         # elif self.state == 'level':
         #
         elif self.state == 'game_over':
@@ -46,13 +46,17 @@ class Info:
         :return: None
         """
         if isinstance(msg, float):
-            self.msg = str(int(msg))
+            self.msg = msg
 
         self.info_labels = []  # (图片对象，放置位置)
-        self.info_labels.append((self.create_label('!FOCUS!'), (75, 30)))
+        if self.msg >= constants.FIRE_CONTROL:
+            self.info_labels.append((self.create_label('FOCUS!'), (75, 30)))
+        else:
+            self.info_labels.append((self.create_label('FOCUS!!!!!!'), (75, 30)))
+
         self.info_labels.append((self.create_label('WORLD'), (450, 30)))
         self.info_labels.append((self.create_label('TIME'), (625, 30)))
-        self.info_labels.append((self.create_label('{}'.format(self.msg)), (75, 55)))
+        self.info_labels.append((self.create_label('{}'.format(str(int(self.msg)))), (75, 55)))
         self.info_labels.append((self.create_label('x00'), (300, 55)))
         self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
 
@@ -67,7 +71,7 @@ class Info:
         :return label_image: 字体图像的Surface对象
         """
         font = pygame.font.SysFont(constants.FONT, size)
-        label_image = font.render(label, 1, (255, 255, 255))
+        label_image = font.render(label, 1, (255, 255, 255))  # 字号颜色
         rect = label_image.get_rect()
         label_image = pygame.transform.scale(label_image, (int(rect.width * width_scale),
                                                            int(rect.height * height_scale)))
@@ -85,4 +89,4 @@ class Info:
         surface.blit(self.flash_coin.image, self.flash_coin.rect)
 
         if self.state == 'load_screen':
-            surface.blit(self.player_image, (300, 270))
+            surface.blit(self.player_image, (300, 250))

@@ -89,10 +89,6 @@ class Level:
                 else:
                     self.box_group.add(box.Box(x, y, box_type))
 
-
-
-
-
     def setup_checkpoints(self):
         self.checkpoint_group = pygame.sprite.Group()
         for item in self.map_data['checkpoint']:
@@ -122,11 +118,10 @@ class Level:
         设置人物图像
         :return: None
         """
-        self.player = player.Player('mario')
+        self.player = player.Player('harry')
         self.player.rect.x = self.game_window.x + self.player_x
         self.player.rect.bottom = self.player_y
-        self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 13, 16, (0, 0, 0),
-                                            constants.PLAYER_MULTI)
+        self.player_image = tools.get_image(setup.GRAPHICS['harry'], 321, 63, 17, 43, (103, 167, 141), constants.PLAYER_MULTI)
 
     def setup_ground_items(self):
         self.ground_items_group = pygame.sprite.Group()
@@ -141,7 +136,7 @@ class Level:
         self.start_x, self.end_x, self.player_x, self.player_y = self.positions[0]
 
     def is_frozen(self):
-        return self.player.state in ['small2big', 'big2small', 'big2fire', 'fire2small', ]
+        return self.player.state in ['small2big', 'big2small', 'big2fire', 'fire2big', ]
 
     def update(self, surface, keys):
         self.current_time = pygame.time.get_ticks()
