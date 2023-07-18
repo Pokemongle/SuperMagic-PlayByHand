@@ -20,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.msg_control_move = ''
         self.msg_control_jump = ''
         self.msg_control_special = ''
+        self.msg_control_fire = 0.0
 
     def load_data(self):
         """
@@ -144,6 +145,9 @@ class Player(pygame.sprite.Sprite):
         if msg == '攻' or msg == '无':
             self.msg_control_special = msg
 
+        if isinstance(msg, float):  # 读取脑电信号
+            self.msg_control_fire = msg
+
         self.current_time = pygame.time.get_ticks()  # 读取当前时间
         self.handle_states(keys, level)
         self.is_hurt_immune()
@@ -208,7 +212,7 @@ class Player(pygame.sprite.Sprite):
         if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
-        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
             if self.fire and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -230,7 +234,7 @@ class Player(pygame.sprite.Sprite):
             self.state = 'jump'
             self.y_vel = self.jump_vel
 
-        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
             if self.fire and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -325,7 +329,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.state = 'fall'
 
-        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
             if self.fire and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -339,7 +343,7 @@ class Player(pygame.sprite.Sprite):
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 发射火球
-        if keys[pygame.K_RSHIFT] or self.msg_control_special == '攻':
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
             if self.fire and self.can_shoot:
                 self.shoot_fireball(level)
         # 控制人物向右移动

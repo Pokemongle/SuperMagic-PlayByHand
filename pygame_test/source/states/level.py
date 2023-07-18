@@ -159,7 +159,7 @@ class Level:
             self.check_checkpoints()
             self.check_if_go_die()
             self.update_game_window()
-            self.info.update()
+            self.info.update(self.msg)
             self.brick_group.update()
             self.box_group.update()
             self.enemy_group.update(self)

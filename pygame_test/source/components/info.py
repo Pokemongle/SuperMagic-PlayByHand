@@ -10,8 +10,9 @@ class Info:
         self.game_info = game_info
         self.state = state
         self.create_state_labels()
-        self.create_info_labels()
+        self.create_info_labels(0.0)
         self.flash_coin = coin.FlashingCoin()
+        self.msg = '0.0'
 
     def create_state_labels(self):
         """
@@ -31,22 +32,27 @@ class Info:
 
             self.state_labels.append((self.create_label('X    {}'.format(self.game_info['lives'])), (380, 280)))
             self.player_image = tools.get_image(setup.GRAPHICS['mario_bros'], 178, 32, 12, 16, (0, 0, 0), constants.BG_MULTI)
+        # elif self.state == 'level':
+        #
         elif self.state == 'game_over':
             self.state_labels.append((self.create_label('GAME OVER'), (280, 300)))
 
 
 
-    def create_info_labels(self):
+    def create_info_labels(self, msg):
         """
         方法1：字体->文字->图片
         创建其它状态文字信息图片
         :return: None
         """
+        if isinstance(msg, float):
+            self.msg = str(int(msg))
+
         self.info_labels = []  # (图片对象，放置位置)
-        self.info_labels.append((self.create_label('MARIO'), (75, 30)))
+        self.info_labels.append((self.create_label('!FOCUS!'), (75, 30)))
         self.info_labels.append((self.create_label('WORLD'), (450, 30)))
         self.info_labels.append((self.create_label('TIME'), (625, 30)))
-        self.info_labels.append((self.create_label('000000'), (75, 55)))
+        self.info_labels.append((self.create_label('{}'.format(self.msg)), (75, 55)))
         self.info_labels.append((self.create_label('x00'), (300, 55)))
         self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
 
@@ -67,8 +73,9 @@ class Info:
                                                            int(rect.height * height_scale)))
         return label_image
 
-    def update(self):
+    def update(self, msg):
         self.flash_coin.update()
+        self.create_info_labels(msg)
 
     def draw(self, surface):
         for label in self.state_labels:

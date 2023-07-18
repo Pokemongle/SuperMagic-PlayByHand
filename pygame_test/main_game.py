@@ -1,6 +1,6 @@
 from source.states import main_menu, load_screen, level
 from source import tools
-import hand_detect
+import hand_detect, brain_detect
 import pygame
 import multiprocessing
 from multiprocessing import Queue
@@ -21,10 +21,10 @@ def main_game(msg_queue):
 
 if __name__ == '__main__':
     msg_queue = Queue()
-    # p1 = multiprocessing.Process(target=main_game)
-    # p2 = multiprocessing.Process(target=hand_detect.main_hand_detect)
     p1 = multiprocessing.Process(target=main_game, args=(msg_queue,))
     p2 = multiprocessing.Process(target=hand_detect.main_hand_detect, args=(msg_queue,))
+    p3 = multiprocessing.Process(target=brain_detect.main_brain, args=(msg_queue,))
 
     p1.start()
     p2.start()
+    p3.start()

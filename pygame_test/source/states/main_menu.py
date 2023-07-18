@@ -116,11 +116,13 @@ class MainMenu:
         surface.blit(self.cursor.image, self.cursor.rect)
         # 读取消息队列最新的消息
         self.msg = (self.msg_queue.get()) if not self.msg_queue.empty() else self.msg
-        if self.msg == '左' or '右' or '跳跃':
+        if self.msg == '左' or self.msg == '右' or self.msg == '跳跃':
             self.control_msg = self.msg
+        else:
+            pass
 
         self.update_cursor(keys)
-        self.info.update()
+        self.info.update(self.msg)
         self.info.draw(surface)
 
     def reset_game_info(self):
