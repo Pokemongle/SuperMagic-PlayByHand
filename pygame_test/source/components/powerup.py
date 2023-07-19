@@ -204,7 +204,9 @@ class Fireball(Powerup):
             if enemy:
                 self.frame_index = 4
                 self.state = 'boom'
-                enemy.go_die('burned')
+                enemy.lives -= 1
+                if enemy.lives <= 0:
+                    enemy.go_die('burned')
 
     def check_y_collision(self, level):
         if self.state == 'boom':
@@ -222,7 +224,9 @@ class Fireball(Powerup):
 
             if enemy:
                 self.state = 'boom'
-                enemy.go_die('burned')
+                enemy.lives -= 1
+                if enemy.lives <= 0:
+                    enemy.go_die('burned')
             elif ground_item:
                 if self.rect.top < ground_item.rect.top:
                     self.rect.bottom = ground_item.rect.top

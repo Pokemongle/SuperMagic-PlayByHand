@@ -143,34 +143,37 @@
         ]},
         {"2":[
             {"x":2320, "y":538, "direction":0, "type":0, "color":0},
-            {"x":2380, "y":538, "direction":0, "type":0, "color":0}
+            {"x":2360, "y":538, "direction":0, "type":0, "color":0}
         ]},
         {"3":[
             {"x":3640, "y":193, "direction":0, "type":0, "color":0},
-            {"x":3700, "y":193, "direction":0, "type":0, "color":0}
+            {"x":3680, "y":193, "direction":0, "type":0, "color":0}
         ]},
         {"4":[
             {"x":4270, "y":538, "direction":0, "type":0, "color":0},
-            {"x":4330, "y":538, "direction":0, "type":0, "color":0}
+            {"x":4310, "y":538, "direction":0, "type":0, "color":0}
         ]},
         {"5":[
             {"x":4700, "y":538, "direction":0, "type":1, "color":0}
         ]},
         {"6":[
             {"x":4900, "y":538, "direction":0, "type":0, "color":0},
-            {"x":4960, "y":538, "direction":0, "type":0, "color":0}
+            {"x":4940, "y":538, "direction":0, "type":0, "color":0}
         ]},
         {"7":[
             {"x":5300, "y":538, "direction":0, "type":0, "color":0},
-            {"x":5360, "y":538, "direction":0, "type":0, "color":0}
+            {"x":5340, "y":538, "direction":0, "type":0, "color":0}
         ]},
         {"8":[
-            {"x":5600, "y":538, "direction":0, "type":0, "color":0},
-            {"x":5660, "y":538, "direction":0, "type":0, "color":0}
+            {"x":5600, "y":538, "direction":0, "type":1, "color":0},
+            {"x":5640, "y":538, "direction":0, "type":0, "color":0}
         ]},
         {"9":[
             {"x":7550, "y":538, "direction":0, "type":0, "color":0},
-            {"x":7610, "y":538, "direction":0, "type":0, "color":0}
+            {"x":7590, "y":538, "direction":0, "type":0, "color":0}
+        ]},
+        {"10":[
+            {"x":8718, "y":300, "direction":0, "type":2, "color":0}
         ]}
     ],
     "checkpoint":[
@@ -184,6 +187,7 @@
         {"x":4700, "y":  0, "width":10, "height":600, "type":0, "enemy_groupid":7},
         {"x":5000, "y":  0, "width":10, "height":600, "type":0, "enemy_groupid":8},
         {"x":6940, "y":  0, "width":100, "height":600, "type":0, "enemy_groupid":9},
+        {"x":7884, "y":  0, "width":100, "height":600, "type":0, "enemy_groupid":10},
         {"x":2460, "y":439, "width":50, "height": 10, "type":6, "map_index":1},
         {"x":8504, "y":-10, "width": 6, "height":600, "type":1},
         {"x":8780, "y":  0, "width":10, "height":600, "type":2},

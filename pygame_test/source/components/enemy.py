@@ -10,6 +10,8 @@ def create_enemy(enemy_data):
         enemy = Goomba(x, y_bottom, direction, 'goomba', color)
     elif enemy_type == 1:  # Koopa 乌龟
         enemy = Koopa(x, y_bottom, direction, 'koopa', color)
+    elif enemy_type == 2:  # Troopa 大怪
+        enemy = Troopa(x, y_bottom, direction, 'troopa', color)
     return enemy
 
 class Enemy(pygame.sprite.Sprite):
@@ -22,6 +24,7 @@ class Enemy(pygame.sprite.Sprite):
         self.left_frames = []
         self.right_frames = []
         self.timer = 0
+        self.lives = 1
 
         self.load_frames(frame_rects)
         self.frames = self.left_frames if self.direction == 0 else self.right_frames
@@ -194,3 +197,34 @@ class Koopa(Enemy):
 
     def slide(self):
         pass
+
+
+class Troopa(Enemy):
+    def __init__(self, x, y_bottom, direction, name, color):
+        bright_frame_rects = [(657, 0, 31, 33), (688, 0, 31, 33), (721, 0, 31, 33), (752, 0, 31, 33)]
+        dark_frame_rects = []
+
+        if not color:
+            frame_rects = bright_frame_rects
+        else:
+            frame_rects = dark_frame_rects
+        Enemy.__init__(self, x, y_bottom, direction, name, frame_rects)
+        self.lives = 15
+
+    def walk(self):
+        if self.current_time - self.timer > 125:
+            self.frame_index = (self.frame_index + 1) % 3
+            self.timer = self.current_time
+            self.image = self.frames[self.frame_index]
+
+    def update_position(self, level):
+        self.rect.x += self.x_vel
+        if self.rect.x >= 9030:
+            self.direction = 0
+            self.x_vel *= -1
+
+        self.check_x_collision(level)
+        self.rect.y += self.y_vel
+        if self.state != 'die':
+            self.check_y_collision(level)
+
