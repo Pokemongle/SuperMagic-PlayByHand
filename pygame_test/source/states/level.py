@@ -17,7 +17,6 @@ class Level:
         self.info = info.Info('level', self.game_info)
         self.msg_queue = msg_queue
         self.msg = ''
-
         self.load_map_data()
         self.setup_background()
         self.setup_bricks_boxes()
@@ -154,9 +153,9 @@ class Level:
             self.check_checkpoints()
             self.check_if_go_die()
             self.update_game_window()
-            self.info.update(self.msg)
+            self.info.update(self.msg, self.player)
             self.brick_group.update()
-            self.box_group.update()
+            self.box_group.update(self)
             self.enemy_group.update(self)
             self.dying_group.update(self)
             self.shell_group.update(self)

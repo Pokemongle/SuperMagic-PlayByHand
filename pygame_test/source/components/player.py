@@ -46,6 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.can_jump = True
         self.can_shoot = True
         self.hurt_immune = False
+        self.ate_mushroom = False
 
     def setup_velocities(self):
         """
@@ -240,7 +241,7 @@ class Player(pygame.sprite.Sprite):
 
         # 动画帧更新
         if self.current_time - self.walking_timer > self.calc_frame_duration():
-            if self.frame_index < 9:
+            if self.frame_index < 8:
                 self.frame_index += 1
             else:
                 self.frame_index = 0
@@ -385,6 +386,7 @@ class Player(pygame.sprite.Sprite):
         frames_and_idx = [(self.small_normal_frames, 0), (self.small_normal_frames, 7), (self.big_normal_frames, 0)]
         if self.translation_timer == 0:
             self.big = True
+            self.ate_mushroom = True
             self.translation_timer = self.current_time
             self.changing_idx = 0
         elif self.current_time - self.translation_timer > frame_dur:
@@ -404,6 +406,7 @@ class Player(pygame.sprite.Sprite):
         frames_and_idx = [(self.small_normal_frames, 8), (self.big_normal_frames, 8), (self.big_normal_frames, 4)]
         if self.translation_timer == 0:
             self.translation_timer = self.current_time
+            self.ate_mushroom = False
             self.changing_idx = 0
         elif self.current_time - self.translation_timer > frame_dur:
             self.translation_timer = self.current_time
@@ -515,7 +518,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot_fireball(self, level):
         if self.current_time - self.last_fireball_timer > 300:
-            self.frame_index = 6
+            self.frame_index = 10
             fireball = powerup.Fireball(self.rect.centerx, self.rect.centery, self.face_right)
             level.powerup_group.add(fireball)
             self.can_shoot = False

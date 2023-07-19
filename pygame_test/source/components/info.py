@@ -10,9 +10,11 @@ class Info:
         self.game_info = game_info
         self.state = state
         self.create_state_labels()
-        self.create_info_labels(0.0)
+        self.create_info_labels()
+        self.attri_labels = []
         self.flash_coin = coin.FlashingCoin()
         self.msg = 0.0
+        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
 
     def create_state_labels(self):
         """
@@ -39,26 +41,20 @@ class Info:
 
 
 
-    def create_info_labels(self, msg):
+    def create_info_labels(self):
         """
         方法1：字体->文字->图片
         创建其它状态文字信息图片
         :return: None
         """
-        if isinstance(msg, float):
-            self.msg = msg
 
         self.info_labels = []  # (图片对象，放置位置)
-        if self.msg >= constants.FIRE_CONTROL:
-            self.info_labels.append((self.create_label('FOCUS!'), (75, 30)))
-        else:
-            self.info_labels.append((self.create_label('FOCUS!!!!!!'), (75, 30)))
-
-        self.info_labels.append((self.create_label('WORLD'), (450, 30)))
-        self.info_labels.append((self.create_label('TIME'), (625, 30)))
-        self.info_labels.append((self.create_label('{}'.format(str(int(self.msg)))), (75, 55)))
+        # self.info_labels.append((self.create_label('TIME'), (75, 30)))
+        # if self.state == 'load_screen' or self.state == 'level':
         self.info_labels.append((self.create_label('x00'), (300, 55)))
         self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
+        self.info_labels.append((self.create_label('FOCUS!!!'), (625, 30)))
+        self.info_labels.append((self.create_label('WORLD'), (450, 30)))
 
 
     def create_label(self, label, size=40, width_scale=1.25, height_scale=1):
@@ -77,16 +73,46 @@ class Info:
                                                            int(rect.height * height_scale)))
         return label_image
 
-    def update(self, msg):
+    def update(self, msg, player=None):
         self.flash_coin.update()
-        self.create_info_labels(msg)
+        self.update_intime(msg, player)
+
+    def update_intime(self, msg, player):
+        self.attri_labels = []
+        # 是否更新脑电信息
+        if isinstance(msg, float):
+            self.msg = msg
+        # 脑电信息是否超过阈值
+        if self.msg >= constants.FIRE_CONTROL:
+            pass
+        else:
+            pass
+        # 更新脑电信息
+        self.attri_labels.append((self.create_label('{}'.format(str(int(self.msg)))), (625, 55)))
+        # 更新血条
+        if self.state == 'level':
+            # 血条
+            if player.dead:
+                self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+            else:
+                if player.big:
+                    if player.fire:
+                        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 459, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                    else:
+                        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 399, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                else:
+                    self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
 
     def draw(self, surface):
         for label in self.state_labels:
             surface.blit(label[0], label[1])
         for label in self.info_labels:
             surface.blit(label[0], label[1])
+        for label in self.attri_labels:
+            surface.blit(label[0], label[1])
         surface.blit(self.flash_coin.image, self.flash_coin.rect)
 
         if self.state == 'load_screen':
             surface.blit(self.player_image, (300, 250))
+        elif self.state == 'level':
+            surface.blit(self.blood_image, (50, 30))

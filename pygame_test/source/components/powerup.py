@@ -2,8 +2,15 @@ import pygame
 from .. import tools, setup
 from .. import constants
 
-def create_powerup(centerx, centery, type):
-    return Fireflower(centerx, centery)
+def create_powerup(centerx, centery, box_type, player):
+    if box_type == 2:
+        pass
+    elif box_type == 3:
+        if player.ate_mushroom:
+            return Fireflower(centerx, centery)
+        else:
+            player.ate_mushroom = True
+            return Mushroom(centerx, centery)
 
 class Powerup(pygame.sprite.Sprite):
     def __init__(self, centerx, centery, frame_rects):
