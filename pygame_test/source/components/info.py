@@ -20,7 +20,7 @@ class Info:
         self.blood_small_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
         self.blood_big_image = tools.get_image(setup.GRAPHICS['harry'], 399, 399, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
         self.blood_fire_image = tools.get_image(setup.GRAPHICS['harry'], 399, 459, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
-
+        self.can_fire_image = tools.get_image(setup.GRAPHICS['item_objects'], 259, 239, 62, 62, (0,0,0), constants.BLOOD_MULTI)
     def create_state_labels(self):
         """
         方法1：字体->文字->图片
@@ -107,7 +107,7 @@ class Info:
                 else:
                     self.blood_image = self.blood_small_image
 
-    def draw(self, surface):
+    def draw(self, surface, player=None):
         for label in self.state_labels:
             surface.blit(label[0], label[1])
         for label in self.info_labels:
@@ -119,4 +119,6 @@ class Info:
         if self.state == 'load_screen':
             surface.blit(self.player_image, (300, 250))
         elif self.state == 'level':
-            surface.blit(self.blood_image, (50, 30))
+            surface.blit(self.blood_image, (40, 45))
+            if player.big or player.fire:
+                surface.blit(self.can_fire_image, (40, 100))

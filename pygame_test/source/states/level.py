@@ -394,5 +394,5 @@ class Level:
         self.shell_group.draw(self.game_ground)
 
         surface.blit(self.game_ground, (0, 0), self.game_window)
-        self.info.draw(surface)
+        self.info.draw(surface, self.player)
 
