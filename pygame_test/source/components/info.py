@@ -14,7 +14,12 @@ class Info:
         self.attri_labels = []
         self.flash_coin = coin.FlashingCoin()
         self.msg = 0.0
-        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+
+        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+        self.blood_dead_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+        self.blood_small_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+        self.blood_big_image = tools.get_image(setup.GRAPHICS['harry'], 399, 399, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+        self.blood_fire_image = tools.get_image(setup.GRAPHICS['harry'], 399, 459, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
 
     def create_state_labels(self):
         """
@@ -34,11 +39,10 @@ class Info:
 
             self.state_labels.append((self.create_label('X    {}'.format(self.game_info['lives'])), (380, 280)))
             self.player_image = tools.get_image(setup.GRAPHICS['harry'], 63, 1343, 22, 25, (103, 167, 141), 2.69)
-        # elif self.state == 'level':
-        #
         elif self.state == 'game_over':
             self.state_labels.append((self.create_label('GAME OVER'), (280, 300)))
-
+        elif self.state == 'game_win':
+            self.state_labels.append((self.create_label('YOU WIN'), (285, 300)))
 
 
     def create_info_labels(self):
@@ -93,15 +97,15 @@ class Info:
         if self.state == 'level':
             # 血条
             if player.dead:
-                self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                self.blood_image = self.blood_dead_image
             else:
                 if player.big:
                     if player.fire:
-                        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 459, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                        self.blood_image = self.blood_fire_image
                     else:
-                        self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 399, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                        self.blood_image = self.blood_big_image
                 else:
-                    self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
+                    self.blood_image = self.blood_small_image
 
     def draw(self, surface):
         for label in self.state_labels:

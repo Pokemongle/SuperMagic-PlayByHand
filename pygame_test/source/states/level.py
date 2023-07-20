@@ -17,6 +17,7 @@ class Level:
         self.info = info.Info('level', self.game_info)
         self.msg_queue = msg_queue
         self.msg = ''
+        self.boss_dead = False
         self.load_map_data()
         self.setup_background()
         self.setup_bricks_boxes()
@@ -142,6 +143,11 @@ class Level:
         # 接收手势信号
         self.msg = self.msg_queue.get() if not self.msg_queue.empty() else self.msg
         self.player.update(keys, self.msg, self)
+
+        if self.boss_dead:
+            self.next = 'game_win'
+            self.finished = True
+
         if self.player.dead:
             if self.current_time - self.player.death_timer > 3000:
                 self.finished = True

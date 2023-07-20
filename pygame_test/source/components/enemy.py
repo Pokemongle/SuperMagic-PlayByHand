@@ -114,7 +114,7 @@ class Enemy(pygame.sprite.Sprite):
         elif self.state == 'fall':
             self.fall()
         elif self.state == 'die':
-            self.die()
+            self.die(level)
         elif self.state == 'trampled':
             self.trampled(level)
         elif self.state == 'slide':
@@ -137,7 +137,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.y_vel < 10:
             self.y_vel += self.gravity
 
-    def die(self):
+    def die(self, level):
         self.rect.x += self.x_vel
         self.rect.y += self.y_vel
         self.y_vel += self.gravity
@@ -227,4 +227,15 @@ class Troopa(Enemy):
         self.rect.y += self.y_vel
         if self.state != 'die':
             self.check_y_collision(level)
+
+    def die(self, level):
+        self.rect.x += self.x_vel
+        self.rect.y += self.y_vel
+        self.y_vel += self.gravity
+        if self.rect.y > constants.SCREEN_H:
+            self.kill()
+            level.boss_dead = True
+
+
+
 

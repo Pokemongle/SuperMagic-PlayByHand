@@ -13,7 +13,8 @@ def main_game(msg_queue):
         'main_menu': main_menu.MainMenu(msg_queue),
         'load_screen': load_screen.LoadScreen(msg_queue),
         'level': level.Level(msg_queue),
-        'game_over': load_screen.GameOver([], msg_queue)
+        'game_over': load_screen.GameOver([], msg_queue),
+        'game_win': load_screen.GameWin([], msg_queue)
     }
     game = tools.Game(state_dict, 'main_menu', msg_queue)
     game.run()

@@ -41,3 +41,18 @@ class GameOver(LoadScreen):
         self.duration = 4000
         self.timer = 0
         self.info = info.Info('game_over', self.game_info)
+
+
+class GameWin(LoadScreen):
+    def __init__(self, game_info, msg_queue):
+        LoadScreen.__init__(game_info, msg_queue)
+        pass
+
+    def start(self, game_info, msg_queue):
+        self.game_info = game_info
+        self.msg_queue = msg_queue
+        self.finished = False
+        self.next = 'main_menu'
+        self.duration = 4000
+        self.timer = 0
+        self.info = info.Info('game_win', self.game_info)
