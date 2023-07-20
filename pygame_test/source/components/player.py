@@ -236,7 +236,7 @@ class Player(pygame.sprite.Sprite):
             self.y_vel = self.jump_vel
 
         if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
-            if self.fire and self.can_shoot:
+            if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
 
         # 动画帧更新
@@ -331,7 +331,7 @@ class Player(pygame.sprite.Sprite):
             self.state = 'fall'
 
         if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
-            if self.fire and self.can_shoot:
+            if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
 
     def fall(self, keys, level):
@@ -345,7 +345,7 @@ class Player(pygame.sprite.Sprite):
             self.x_accel = self.walk_accel
         # 发射火球
         if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
-            if self.fire and self.can_shoot:
+            if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
         # 控制人物向右移动
         if keys[pygame.K_RIGHT] or self.msg_control_move == '右':
