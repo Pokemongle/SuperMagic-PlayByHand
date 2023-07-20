@@ -5,6 +5,7 @@ from .. import constants
 from ..components import powerup
 import json
 import os
+import random
 
 
 class Player(pygame.sprite.Sprite):
@@ -21,6 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.msg_control_jump = ''
         self.msg_control_special = ''
         self.msg_control_fire = 0.0
+        self.msg_control_speed = 80
 
     def load_data(self):
         """
@@ -154,6 +156,18 @@ class Player(pygame.sprite.Sprite):
 
         if isinstance(msg, float):  # 读取脑电信号
             self.msg_control_fire = msg
+        if isinstance(msg, int):  # 读取心率信号
+            self.msg_control_speed = msg
+        else:
+            speed = self.player_data['speed']
+            if self.msg_control_speed < 80:
+                self.max_x_vel = speed['max_walk_speed']
+            elif self.msg_control_speed > 100:
+                self.max_x_vel = speed['max_run_speed']
+                # self.max_x_vel = speed['max_walk_speed'] +
+            else:
+                self.max_x_vel = 6 + 6 * ((self.msg_control_speed - 80) / (100 - 80))
+        # 书签
 
         self.current_time = pygame.time.get_ticks()  # 读取当前时间
         self.handle_states(keys, level)
@@ -231,10 +245,10 @@ class Player(pygame.sprite.Sprite):
         """
         # 按住左shift + 方向键可以冲刺
         if keys[pygame.K_LSHIFT]:
-            self.max_x_vel = self.max_run_vel
+            # self.max_x_vel = self.max_run_vel
             self.x_accel = self.run_accel
         else:
-            self.max_x_vel = self.max_walk_vel
+            # self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 控制人物跳跃
         if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
@@ -292,10 +306,10 @@ class Player(pygame.sprite.Sprite):
             self.state = 'fall'
 
         if keys[pygame.K_LSHIFT]:
-            self.max_x_vel = self.max_run_vel
+            # self.max_x_vel = self.max_run_vel
             self.x_accel = self.run_accel
         else:
-            self.max_x_vel = self.max_walk_vel
+            # self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
 
         # 控制人物向右移动
@@ -344,10 +358,10 @@ class Player(pygame.sprite.Sprite):
         self.can_jump = False
         self.y_vel = self.calc_vel(self.y_vel, self.gravity, self.max_y_vel, True)
         if keys[pygame.K_LSHIFT]:
-            self.max_x_vel = self.max_run_vel
+            # self.max_x_vel = self.max_run_vel
             self.x_accel = self.run_accel
         else:
-            self.max_x_vel = self.max_walk_vel
+            # self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 发射火球
         if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= self.fire_control:
@@ -362,7 +376,7 @@ class Player(pygame.sprite.Sprite):
                 self.frame_index = 3  # 急停刹车为第5帧
                 self.x_accel = self.turn_accel
             # 根据当前速度，加速度，最大速度计算下一步的速度
-            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
+            # self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, True)
         # 控制人物向左运动
         elif keys[pygame.K_LEFT] or self.msg_control_move == '左':
             self.face_right = False
@@ -370,7 +384,7 @@ class Player(pygame.sprite.Sprite):
             if self.x_vel > 0:
                 self.frame_index = 3
                 self.x_accel = self.turn_accel
-            self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
+            # self.x_vel = self.calc_vel(self.x_vel, self.x_accel, self.max_x_vel, False)
         # 无按键控制或手势响应，人物逐渐停止
         else:
             if self.face_right:  # 人物姿势是否朝右

@@ -13,7 +13,8 @@ class Info:
         self.create_info_labels()
         self.attri_labels = []
         self.flash_coin = coin.FlashingCoin()
-        self.msg = 0.0
+        self.msg_brain = 0.0
+        self.msg_heart = 80
 
         self.blood_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
         self.blood_dead_image = tools.get_image(setup.GRAPHICS['harry'], 399, 281, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
@@ -57,9 +58,10 @@ class Info:
         # self.info_labels.append((self.create_label('TIME'), (75, 30)))
         # if self.state == 'load_screen' or self.state == 'level':
         self.info_labels.append((self.create_label('x00'), (300, 55)))
-        self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
+        # self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
         # self.info_labels.append((self.create_label('FOCUS!!!'), (625, 30)))
-        self.info_labels.append((self.create_label('WORLD'), (450, 30)))
+        self.info_labels.append((self.create_label('FOCUS'), (625, 30)))
+        self.info_labels.append((self.create_label('HEART'), (450, 30)))
 
 
     def create_label(self, label, size=40, width_scale=1.25, height_scale=1):
@@ -86,11 +88,13 @@ class Info:
         self.attri_labels = []
         # 是否更新脑电信息
         if isinstance(msg, float):
-            self.msg = msg
+            self.msg_brain = msg
+        if isinstance(msg, int):
+            self.msg_heart = msg
         # 脑电信息是否超过阈值
         if player is not None:
             if player.fire_control == constants.FIRE_CONTROL:
-                if self.msg >= constants.FIRE_CONTROL:
+                if self.msg_brain >= constants.FIRE_CONTROL:
                     self.attri_labels.append((self.create_label('FOCUS'), (625, 30)))
                 else:
                     self.attri_labels.append((self.create_label('FOCUS!!!!!!'), (625, 30)))
@@ -103,7 +107,10 @@ class Info:
         #     self.attri_labels.append((self.create_label('FOCUS!!!!!!'), (625, 30)))
 
         # 更新脑电信息
-        self.attri_labels.append((self.create_label('{}'.format(str(int(self.msg)))), (625, 55)))
+        self.attri_labels.append((self.create_label('{}'.format(str(int(self.msg_brain)))), (625, 55)))
+        # 更新心率信息
+        self.attri_labels.append((self.create_label('{}'.format(str(int(self.msg_heart)))), (480, 55)))
+
         # 更新血条
         if self.state == 'level':
             # 血条
