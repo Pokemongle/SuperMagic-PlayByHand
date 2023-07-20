@@ -20,7 +20,8 @@ class Info:
         self.blood_small_image = tools.get_image(setup.GRAPHICS['harry'], 399, 339, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
         self.blood_big_image = tools.get_image(setup.GRAPHICS['harry'], 399, 399, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
         self.blood_fire_image = tools.get_image(setup.GRAPHICS['harry'], 399, 459, 142, 40, (103, 167, 141), constants.BLOOD_MULTI)
-        self.can_fire_image = tools.get_image(setup.GRAPHICS['item_objects'], 259, 239, 62, 62, (0,0,0), constants.BLOOD_MULTI)
+        self.can_fire_image = tools.get_image(setup.GRAPHICS['item_objects'], 259, 239, 62, 62, (0, 0, 0), constants.BLOOD_MULTI)
+        self.brain_image = tools.get_image(setup.GRAPHICS['item_objects'], 339, 239, 48, 61, (0, 0, 0), constants.BLOOD_MULTI)
     def create_state_labels(self):
         """
         方法1：字体->文字->图片
@@ -57,7 +58,7 @@ class Info:
         # if self.state == 'load_screen' or self.state == 'level':
         self.info_labels.append((self.create_label('x00'), (300, 55)))
         self.info_labels.append((self.create_label('1 - 1'), (480, 55)))
-        self.info_labels.append((self.create_label('FOCUS!!!'), (625, 30)))
+        # self.info_labels.append((self.create_label('FOCUS!!!'), (625, 30)))
         self.info_labels.append((self.create_label('WORLD'), (450, 30)))
 
 
@@ -87,10 +88,20 @@ class Info:
         if isinstance(msg, float):
             self.msg = msg
         # 脑电信息是否超过阈值
-        if self.msg >= constants.FIRE_CONTROL:
-            pass
-        else:
-            pass
+        if player is not None:
+            if player.fire_control == constants.FIRE_CONTROL:
+                if self.msg >= constants.FIRE_CONTROL:
+                    self.attri_labels.append((self.create_label('FOCUS'), (625, 30)))
+                else:
+                    self.attri_labels.append((self.create_label('FOCUS!!!!!!'), (625, 30)))
+            else:
+                self.attri_labels.append((self.create_label('FOCUS'), (625, 30)))
+
+        # if self.msg >= constants.FIRE_CONTROL:
+        #     self.attri_labels.append((self.create_label('FOCUS'), (625, 30)))
+        # else:
+        #     self.attri_labels.append((self.create_label('FOCUS!!!!!!'), (625, 30)))
+
         # 更新脑电信息
         self.attri_labels.append((self.create_label('{}'.format(str(int(self.msg)))), (625, 55)))
         # 更新血条
@@ -121,4 +132,9 @@ class Info:
         elif self.state == 'level':
             surface.blit(self.blood_image, (40, 45))
             if player.big or player.fire:
-                surface.blit(self.can_fire_image, (40, 100))
+                if player.msg_control_fire >= player.fire_control:
+                    surface.blit(self.can_fire_image, (40, 100))
+            if player.fire_control == constants.FIRE_CONTROL:
+                surface.blit(self.brain_image, (100, 100))
+            else:
+                pass

@@ -82,7 +82,7 @@ def main_hand_detect(msg_queue):
     #初始化
     AngleListL = None
     AngleListR = None
-    minDetect = 1 #seconds
+    minDetect = 2 #seconds
     minJump = 1  # seconds
     minAttack = 1  # seconds
     attackTime: float = 0
@@ -140,12 +140,12 @@ def main_hand_detect(msg_queue):
                 # if (time.time() - jumpTime > minJump):
                 #     jumpTime = time.time()
                     msg_queue.put('跳')
-                    print('跳')
+                    # print('跳')
             elif fingersL[0] == 0 and fingersL[1] == 1 and fingersL[2] == 0 and fingersL[3] == 0 and fingersL[4] == 0:
                 # if (time.time() - attackTime > minAttack):
                 #     attackTime = time.time()
                     msg_queue.put('攻')
-                    print('攻')
+                    # print('攻')
             else:
                 msg_queue.put('无')
 
@@ -162,21 +162,32 @@ def main_hand_detect(msg_queue):
             # 左移
             if AngleListR[1]>110 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 msg_queue.put('左')
-                print('左')
+                # print('左')
             # 右移
             elif AngleListR[1]<60 and fingersR[0] == 0 and fingersR[1] == 1 and fingersR[2] == 0 and fingersR[3] == 0 and fingersR[4] == 0:
                 msg_queue.put('右')
-                print('右')
+                # print('右')
             else:
                 msg_queue.put('中')
 
-        #手势判定
+        # 手势判定
         if AngleListL is not None and AngleListR is not None:
-            #手势1 三角
-            if detectGes(AngleListL,[0,25],[55,70],[45,70],[100,120],[90,120]) and detectGes(AngleListR,[145,180],[115,135],[115,135],[55,80],[55,80]):
-                if(time.time()-detectTime>minDetect):
-                    detectTime=time.time()
-                    print('手势一detected')
+            # 手势1 三角
+            if detectGes(AngleListL, [0, 25], [55, 70], [45, 70], [100, 120], [90, 120]) and detectGes(AngleListR,
+                                                                [145, 180],[115, 135],[115, 135], [55, 80],[55, 80]):
+                msg_queue.put('脑')
+                # print('脑')
+            # 手势2 剑树
+            if detectGes(AngleListL, [30, 75], [45, 75], [45, 75], [90, 140], [0, 180]) and detectGes(AngleListR, [90, 145],
+                                                                                                      [90, 120], [115, 135],
+                                                                                                      [30, 55], [0, 90]):
+                pass
+                # print('手势二detected')
+            # 手势3 网
+            if detectGes(AngleListL, [70, 100], [0, 20], [0, 20], [0, 20], [0, 20]) and detectGes(AngleListR, [70, 100],
+                                                                                                  [160, 180], [160, 180],                                                                                  [160, 180], [160, 180]):
+                msg_queue.put('手')
+                # print('手')
 
         #OSD information
         # FPS

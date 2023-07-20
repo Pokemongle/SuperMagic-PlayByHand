@@ -47,6 +47,7 @@ class Player(pygame.sprite.Sprite):
         self.can_shoot = True
         self.hurt_immune = False
         self.ate_mushroom = False
+        self.fire_control = constants.FIRE_CONTROL_HAND
 
     def setup_velocities(self):
         """
@@ -146,6 +147,11 @@ class Player(pygame.sprite.Sprite):
         if msg == '攻' or msg == '无':
             self.msg_control_special = msg
 
+        if msg == '脑':
+            self.fire_control = constants.FIRE_CONTROL
+        if msg == '手':
+            self.fire_control = constants.FIRE_CONTROL_HAND
+
         if isinstance(msg, float):  # 读取脑电信号
             self.msg_control_fire = msg
 
@@ -213,7 +219,7 @@ class Player(pygame.sprite.Sprite):
         if ((keys[pygame.K_SPACE]) or (self.msg_control_jump == '跳')) and self.can_jump:
             self.state = 'jump'
             self.y_vel = self.jump_vel
-        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= self.fire_control:
             if self.fire and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -235,7 +241,7 @@ class Player(pygame.sprite.Sprite):
             self.state = 'jump'
             self.y_vel = self.jump_vel
 
-        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= self.fire_control:
             if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -330,7 +336,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.state = 'fall'
 
-        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= self.fire_control:
             if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
 
@@ -344,7 +350,7 @@ class Player(pygame.sprite.Sprite):
             self.max_x_vel = self.max_walk_vel
             self.x_accel = self.walk_accel
         # 发射火球
-        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= constants.FIRE_CONTROL:
+        if (keys[pygame.K_RSHIFT] or self.msg_control_special == '攻') and self.msg_control_fire >= self.fire_control:
             if (self.big or self.fire) and self.can_shoot:
                 self.shoot_fireball(level)
         # 控制人物向右移动
