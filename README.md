@@ -15,12 +15,15 @@ Game scene switching, role movement, role and props interaction, role and monste
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132157038.png)
 
 ### Character fsm
+
 Movement:
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132159225.png)
+
 Ability:
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132159208.png)
 
 ### Monster fsm(take Troopa as an example)
+
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132200066.png)
 
 ### Powerup fsm(take mushroom as an example)
@@ -50,6 +53,7 @@ gesture2:
 ## example1(without EEG head circle)
 The figure eats the mushroom, the blood strip is yellow. The player makes a gesture 1, allowing the EEG signal to control the character to fire a fireball. Since no EEG headband is worn, the EEG signal is set to the default 0, and an exclamation point appears after FOCUS to remind the player to FOCUS.
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132203686.png)
+
 At this point, the player gestures 2, the prohibition of EEG control characters can launch fireball, focus 0 can not affect characters can launch fireball attack. The exclamation point after FOCUS disappears, and a fire sign appears in the upper left corner to alert the player that the character is now able to fire a fireball.
 ![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132327774.png)
 
@@ -57,6 +61,8 @@ At this point, the player gestures 2, the prohibition of EEG control characters 
 The player makes a gesture 1 that allows the EEG to control whether the character is able to attack, and a light bulb sign appears in the upper left corner.
 1. when the FOCUS is greater than the set threshold, FOCUS after the exclamation point disappeared, the upper left corner of the fire signs. Player left index finger extended, characters can attack.
 	![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132328696.png)
-2. When the FOCUS is too low, the upper right corner of the FOCUS after an exclamation point to remind the player to FOCUS, the upper left corner of the flame logo disappeared, the character can not fire a fireball attack
+	
+1. When the FOCUS is too low, the upper right corner of the FOCUS after an exclamation point to remind the player to FOCUS, the upper left corner of the flame logo disappeared, the character can not fire a fireball attack
 	![image.png](https://pokemongle-images-1319763739.cos.ap-nanjing.myqcloud.com/sandox/img/202309132329151.png)
+	
 	In addition to focus, heart rate can control the maximum rate of movement of the character, (when the heart rate is greater than 80) , considering that the player's heart rate should not be static, so no heart rate control switch, instead, set the heart rate to at least how much to control the speed of the character's movement.
